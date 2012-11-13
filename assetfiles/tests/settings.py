@@ -1,6 +1,7 @@
 from os import path
+import tempfile
 
-TESTS_ROOT = path.abspath(path.dirname(__file__))
+PROJECT_ROOT = path.abspath(path.join(path.dirname(__file__), 'project'))
 
 TEST_RUNNER = 'discover_runner.DiscoverRunner'
 
@@ -13,17 +14,18 @@ DATABASES = {
 
 INSTALLED_APPS = (
     'assetfiles',
-    'assetfiles.tests.app',
+    'assetfiles.tests.apps.app-1',
+    'assetfiles.tests.apps.app-2',
 )
 
 ROOT_URLCONF = 'assetfiles.tests.urls'
 
-STATIC_ROOT = path.join(TESTS_ROOT, 'public')
+STATIC_ROOT = path.join(PROJECT_ROOT, 'public')
 
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-    path.join(TESTS_ROOT, 'static'),
+    path.join(PROJECT_ROOT, 'static'),
 )
 
 STATICFILES_FINDERS = (
@@ -32,5 +34,7 @@ STATICFILES_FINDERS = (
 )
 
 TEMPLATE_DIRS = (
-    path.join(TESTS_ROOT, 'templates'),
+    path.join(PROJECT_ROOT, 'templates'),
 )
+
+TEMP_DIR = tempfile.mkdtemp(prefix='assetfiles_')
