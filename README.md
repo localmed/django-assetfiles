@@ -21,6 +21,7 @@ Installation
         # 'django.contrib.staticfiles',
         'assetfiles',
     )
+    ```
 
 3. That's it! Assetfiles will default to your [Staticfiles settings](https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/).
 
