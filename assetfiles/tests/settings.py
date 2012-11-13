@@ -1,5 +1,4 @@
 from os import path
-import tempfile
 
 PROJECT_ROOT = path.abspath(path.join(path.dirname(__file__), 'project'))
 
@@ -36,5 +35,3 @@ STATICFILES_FINDERS = (
 TEMPLATE_DIRS = (
     path.join(PROJECT_ROOT, 'templates'),
 )
-
-TEMP_DIR = tempfile.mkdtemp(prefix='assetfiles_')
