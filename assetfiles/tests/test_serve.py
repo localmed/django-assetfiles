@@ -41,3 +41,8 @@ class TestServe(TestCase):
     def test_processes_scss_files_with_app_deps(self):
         response = self.client.get('/static/css/with_app_deps.css')
         self.assertEquals(response.content.strip(), 'body {\n  color: white; }')
+
+    def test_integrates_static_url_with_sass(self):
+        response = self.client.get('/static/css/with_url.css')
+        self.assertEquals(response.content.strip(),
+            'body {\n  background: url("/static/img/bg.jpg"); }')
