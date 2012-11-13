@@ -3,18 +3,21 @@ from django.test import TestCase
 from django.utils import six
 
 class TestFindStatic(TestCase):
-    def test_find_file(self):
+    def _call_command(self, *args, **kwargs):
         out = six.StringIO()
-        call_command('findstatic', 'css/static.css', all=False, verbosity=0, stdout=out)
+        kwargs['stdout'] = out
+        call_command(*args, **kwargs)
         out.seek(0)
+        return out
+
+    def test_find_file(self):
+        out = self._call_command('findstatic', 'css/static.css', all=False, verbosity=0)
         lines = [l.strip() for l in out.readlines()][1:]
         self.assertEquals(len(lines), 1)
         self.assertIn('tests/static/css/static.css', lines[0])
 
     def test_find_all_files(self):
-        out = six.StringIO()
-        call_command('findstatic', 'css/static.css', verbosity=0, stdout=out)
-        out.seek(0)
+        out = self._call_command('findstatic', 'css/static.css', verbosity=0)
         lines = [l.strip() for l in out.readlines()][1:]
         self.assertEquals(len(lines), 2)
         self.assertIn('tests/static/css/static.css', lines[0])

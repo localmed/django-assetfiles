@@ -18,7 +18,7 @@ class SassError(Exception):
 
 
 class SassProcessor(object):
-    sass_functions = path.abspath(path.join(path.dirname(__file__), 'sass_functions.rb'))
+    sass_functions = path.abspath(path.join(path.dirname(__file__), 'scripts/sass_functions.rb'))
     sass_load_path_dirs = ('css', 'style', 'styles', 'stylesheets')
 
     def __init__(self, file):
