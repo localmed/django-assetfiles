@@ -4,7 +4,8 @@ from django.contrib.staticfiles import finders, storage
 from django.test import TestCase
 from django.utils.functional import empty
 
-import assetfiles
+from assetfiles import filters
+from assetfiles.filters.base import BaseFilter
 
 class AssetfilesTestCase(TestCase):
     def setUp(self):
@@ -17,7 +18,7 @@ class AssetfilesTestCase(TestCase):
         finders._finders.clear()
         # Clear the cached assetfile filters, so they are reinitialized every
         # run and pick up changes in settings.ASSETFILES_FILTERS.
-        assetfiles._filters.clear()
+        filters._filters.clear()
 
     def mkdir(self):
         path = tempfile.mkdtemp(prefix='assetfiles-')
@@ -36,3 +37,23 @@ class AssetfilesTestCase(TestCase):
             if content: file.write(content)
 
         return abspath
+
+class ReplaceFilter(BaseFilter):
+    input_exts = ('foo', 'baz')
+    output_ext = 'bar'
+
+    def __init__(self, pattern='a', replacement='b'):
+        self.pattern = pattern
+        self.replacement = replacement
+
+    def filter(self, input):
+        with open(input, 'r') as file:
+            return file.read().replace(self.pattern, self.replacement)
+
+class Filter1(BaseFilter):
+    input_exts = ('in', 'in1')
+    output_ext = 'out'
+
+class Filter2(BaseFilter):
+    input_exts = ('in2',)
+    output_ext = 'out2'

@@ -2,7 +2,7 @@ import os
 
 from django.contrib.staticfiles.management.commands import collectstatic
 
-from assetfiles import filter_from_path
+from assetfiles import filters
 
 class Command(collectstatic.Command):
     def copy_file(self, path, prefixed_path, source_storage):
@@ -21,7 +21,7 @@ class Command(collectstatic.Command):
         if self.dry_run:
             self.log("Pretending to copy '%s'" % source_path, level=1)
         else:
-            filter = filter_from_path(source_path)
+            filter = filters.find_by_input_path(source_path)
             if filter:
                 if filter.skip_output_path(prefixed_path): return
 

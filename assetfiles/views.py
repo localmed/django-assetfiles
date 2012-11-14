@@ -14,7 +14,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404, HttpResponse
 from django.views import static
 
-from assetfiles import find_asset
+from assetfiles import assets
 
 def serve(request, path, document_root=None, insecure=False, **kwargs):
     """
@@ -40,7 +40,7 @@ def serve(request, path, document_root=None, insecure=False, **kwargs):
         document_root, path = os.path.split(static_path)
         return static.serve(request, path, document_root=document_root, **kwargs)
 
-    asset_path, filter = find_asset(normalized_path)
+    asset_path, filter = assets.find(normalized_path)
     if asset_path:
         content = filter.filter(asset_path)
         mimetype, encoding = mimetypes.guess_type(normalized_path)

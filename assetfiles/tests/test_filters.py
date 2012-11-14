@@ -1,25 +1,14 @@
 import os, shutil, tempfile
 
 from assetfiles import settings
+from assetfiles import filters
 from assetfiles.filters.base import BaseFilter
 from assetfiles.filters.sass import SassFilter
-from assetfiles.tests.base import AssetfilesTestCase
+from assetfiles.tests.base import AssetfilesTestCase, ReplaceFilter, Filter1, Filter2
 
-class ReplaceFilter(BaseFilter):
-    input_exts = ('foo', 'baz',)
-    output_ext = 'bar'
-
-    def __init__(self, pattern='a', replacement='b'):
-        self.pattern = pattern
-        self.replacement = replacement
-
-    def filter(self, input):
-        with open(input, 'r') as file:
-            return file.read().replace(self.pattern, self.replacement)
-
-class TestFilters(AssetfilesTestCase):
+class TestBaseFilter(AssetfilesTestCase):
     def setUp(self):
-        super(TestFilters, self).setUp()
+        super(TestBaseFilter, self).setUp()
         self.root = self.mkdir()
 
     def test_filters_a_single_input_file(self):
@@ -71,3 +60,26 @@ class TestFilters(AssetfilesTestCase):
         filter = ReplaceFilter()
         self.assertEquals('dir/main.bar', filter.output_path('dir/main.bar.foo'))
         self.assertEquals('dir/main.bar', filter.output_path('dir/main.foo'))
+
+class TestFilters(AssetfilesTestCase):
+    def setUp(self):
+        super(TestFilters, self).setUp()
+        self.old_filters = settings.FILTERS
+        settings.FILTERS = (
+            'assetfiles.tests.base.Filter1',
+            'assetfiles.tests.base.Filter2',
+        )
+
+    def tearDown(self):
+        settings.FILTERS = self.old_filters
+
+    def test_filter_from_path(self):
+        self.assertIsInstance(filters.find_by_input_path('main.in'), Filter1)
+        self.assertIsInstance(filters.find_by_input_path('main.in1'), Filter1)
+        self.assertIsInstance(filters.find_by_input_path('main.in2'), Filter2)
+        self.assertEquals(None, filters.find_by_input_path('main.out'))
+
+    def test_filter_to_path(self):
+        self.assertIsInstance(filters.find_by_output_path('main.out'), Filter1)
+        self.assertIsInstance(filters.find_by_output_path('main.out2'), Filter2)
+        self.assertEquals(None, filters.find_by_output_path('main.in'))
