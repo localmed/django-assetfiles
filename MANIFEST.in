@@ -1,0 +1,4 @@
+include README.md
+include LICENSE
+include assetfiles/scripts/sass_functions.rb
+recursive-include assetfiles/tests *.scss *.css

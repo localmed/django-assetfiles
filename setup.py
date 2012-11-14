@@ -1,12 +1,19 @@
+import os
 from setuptools import setup, find_packages
+
+from assetfiles import __version__
+
+here = os.path.abspath(os.path.dirname(__file__))
+README = open(os.path.join(here, 'README.md')).read()
 
 setup(
     name='django-assetfiles',
-    version='0.1.0',
+    version=__version__,
     description='Drop-in replacement for staticfiles which handles asset processing.',
+    long_description=README,
     author='Peter Browne',
     author_email='pbrowne@localmed.com',
-    url='',
+    url='http://github.com/LocalMed/django-assetfiles',
     license='MIT',
     packages=find_packages(),
     classifiers=[
