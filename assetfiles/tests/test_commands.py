@@ -1,12 +1,10 @@
-import os, shutil, tempfile
+import os
 
 from django.conf import settings
 from django.core import management
-from django.test import TestCase
 from django.utils import six
-from django.utils.functional import empty
 
-from django.contrib.staticfiles import finders, storage
+from assetfiles.tests.base import AssetfilesTestCase
 
 def call_command(*args, **kwargs):
     out = six.StringIO()
@@ -15,7 +13,7 @@ def call_command(*args, **kwargs):
     out.seek(0)
     return out
 
-class TestFindStatic(TestCase):
+class TestFindStatic(AssetfilesTestCase):
     def test_find_file(self):
         out = call_command('findstatic', 'css/static.css', all=False)
         lines = out.readlines()[1:]
@@ -30,20 +28,13 @@ class TestFindStatic(TestCase):
         self.assertIn('app-1/static/css/static.css', lines[1])
         self.assertIn('app-2/static/css/static.css', lines[2])
 
-class TestCollectStatic(TestCase):
+class TestCollectStatic(AssetfilesTestCase):
     def setUp(self):
-        # Clear the cached staticfiles_storage out, this is because when it first
-        # gets accessed (by some other test), it evaluates settings.STATIC_ROOT,
-        # since we're planning on changing that we need to clear out the cache.
-        storage.staticfiles_storage._wrapped = empty
-        # Clear the cached staticfile finders, so they are reinitialized every
-        # run and pick up changes in settings.STATICFILES_DIRS.
-        finders._finders.clear()
-
+        super(TestCollectStatic, self).setUp()
+        self.root = self.mkdir()
         self.old_root = settings.STATIC_ROOT
-        settings.STATIC_ROOT = tempfile.mkdtemp(prefix='assetfiles-')
+        settings.STATIC_ROOT = self.root
         call_command('collectstatic', interactive=False, clear=True)
-        self.addCleanup(shutil.rmtree, settings.STATIC_ROOT, ignore_errors=True)
 
     def tearDown(self):
         settings.STATIC_ROOT = self.old_root

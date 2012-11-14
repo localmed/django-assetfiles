@@ -2,18 +2,19 @@
 Views and functions for serving static files. These are only to be used during
 development, and SHOULD NOT be used in a production setting.
 """
-import os, posixpath
+import mimetypes, os, posixpath
 try:
     from urllib.parse import unquote
 except ImportError:     # Python 2
     from urllib import unquote
 
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.core.exceptions import ImproperlyConfigured
 from django.http import Http404, HttpResponse
 from django.views import static
 
-from django.contrib.staticfiles import finders
+from assetfiles import find_asset
 
 def serve(request, path, document_root=None, insecure=False, **kwargs):
     """
@@ -33,19 +34,17 @@ def serve(request, path, document_root=None, insecure=False, **kwargs):
                                    'debug mode or if the the --insecure '
                                    "option of 'runserver' is used")
     normalized_path = posixpath.normpath(unquote(path)).lstrip('/')
-    absolute_path = finders.find(normalized_path)
 
-    if absolute_path:
-        document_root, path = os.path.split(absolute_path)
+    static_path = finders.find(normalized_path)
+    if static_path:
+        document_root, path = os.path.split(static_path)
         return static.serve(request, path, document_root=document_root, **kwargs)
 
-    if normalized_path.endswith('.css'):
-        scss_path = normalized_path.replace('.css', '.scss')
-        absolute_scss_path = finders.find(scss_path)
-        if absolute_scss_path:
-            from assetfiles.processors import SassProcessor
-            css = SassProcessor(absolute_scss_path).process()
-            return HttpResponse(css, content_type='text/css')
+    asset_path, filter = find_asset(normalized_path)
+    if asset_path:
+        content = filter.filter(asset_path)
+        mimetype, encoding = mimetypes.guess_type(normalized_path)
+        return HttpResponse(content, content_type=mimetype)
 
     if path.endswith('/') or path == '':
         raise Http404('Directory indexes are not allowed here.')

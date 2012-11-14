@@ -2,6 +2,8 @@ import os
 
 from django.contrib.staticfiles.management.commands import collectstatic
 
+from assetfiles import filter_from_path
+
 class Command(collectstatic.Command):
     def copy_file(self, path, prefixed_path, source_storage):
         """
@@ -19,18 +21,17 @@ class Command(collectstatic.Command):
         if self.dry_run:
             self.log("Pretending to copy '%s'" % source_path, level=1)
         else:
-            if source_path.endswith('.scss'):
-                _, file_name = os.path.split(source_path)
-                if file_name.startswith('_'): return
+            filter = filter_from_path(source_path)
+            if filter:
+                if filter.skip_output_path(prefixed_path): return
 
                 self.log("Processing '%s'" % source_path, level=1)
-                from assetfiles.processors import SassProcessor
                 from assetfiles.storage import TempFilesStorage
 
-                prefixed_path = prefixed_path.replace('.scss', '.css')
-                css = SassProcessor(source_path).process()
+                prefixed_path = filter.output_path(prefixed_path)
+                content = filter.filter(source_path)
                 source_storage = TempFilesStorage()
-                source_storage.save(path, css)
+                source_storage.save(path, content)
 
             self.log("Copying '%s'" % source_path, level=1)
             if self.local:
