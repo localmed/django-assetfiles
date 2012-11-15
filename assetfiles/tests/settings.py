@@ -1,6 +1,14 @@
 from os import path
+import shutil
 
-PROJECT_ROOT = path.abspath(path.join(path.dirname(__file__), 'project'))
+TESTS_ROOT = path.abspath(path.dirname(__file__))
+PROJECT_ROOT = path.join(TESTS_ROOT, 'project')
+
+# We'll use am empty project for each test and create the files we need.
+# But, we need actual app directories to have them installed so we copy
+# the template beforehand.
+if not path.exists(PROJECT_ROOT):
+    shutil.copytree(path.join(TESTS_ROOT, 'project-template'), PROJECT_ROOT)
 
 TEST_RUNNER = 'discover_runner.DiscoverRunner'
 
@@ -13,8 +21,8 @@ DATABASES = {
 
 INSTALLED_APPS = (
     'assetfiles',
-    'assetfiles.tests.apps.app-1',
-    'assetfiles.tests.apps.app-2',
+    'assetfiles.tests.project.app-1',
+    'assetfiles.tests.project.app-2',
 )
 
 ROOT_URLCONF = 'assetfiles.tests.urls'

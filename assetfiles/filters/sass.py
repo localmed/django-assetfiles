@@ -16,12 +16,12 @@ class SassFilter(BaseFilter):
     def filter(self, input):
         env = dict(os.environ)
         env.update({
-            'SASSPATH': ':'.join(sass_load_paths),
             'DJANGO_STATIC_URL': settings.STATIC_URL,
         })
 
-        command = 'sass --require {0} {1}'.format(
-            pipes.quote(self.sass_functions),
+        command = 'sass {0} {1} {2}'.format(
+            '--require {0}'.format(pipes.quote(self.sass_functions)),
+            ' '.join(['--load-path {0}'.format(pipes.quote(path)) for path in sass_load_paths]),
             pipes.quote(input),
         )
 

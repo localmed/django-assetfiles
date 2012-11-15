@@ -1,16 +1,12 @@
 import os, shutil, tempfile
 
-from assetfiles import settings
-from assetfiles import filters
+from assetfiles import assets, filters, settings
 from assetfiles.filters.base import BaseFilter
-from assetfiles.filters.sass import SassFilter
-from assetfiles.tests.base import AssetfilesTestCase, ReplaceFilter, Filter1, Filter2
+from assetfiles.filters.sass import SassError, SassFilter
+from assetfiles.tests.base import (AssetfilesTestCase, ReplaceFilter,
+    Filter1, Filter2)
 
 class TestBaseFilter(AssetfilesTestCase):
-    def setUp(self):
-        super(TestBaseFilter, self).setUp()
-        self.root = self.mkdir()
-
     def test_filters_a_single_input_file(self):
         filter = ReplaceFilter('Hello', 'World')
         path = self.mkfile('main.css', 'Hello')
@@ -83,3 +79,41 @@ class TestFilters(AssetfilesTestCase):
         self.assertIsInstance(filters.find_by_output_path('main.out'), Filter1)
         self.assertIsInstance(filters.find_by_output_path('main.out2'), Filter2)
         self.assertEquals(None, filters.find_by_output_path('main.in'))
+
+class TestSassFilter(AssetfilesTestCase):
+    def filter(self, path):
+        asset_path, filter = assets.find(path)
+        return filter.filter(asset_path).strip()
+
+    def test_processes_scss_files(self):
+        path = self.mkfile('static/css/simple.scss',
+            '$c: red; body { color: $c; }')
+        css = self.filter('css/simple.css')
+        self.assertEquals(css, 'body {\n  color: red; }')
+
+    def test_processes_app_scss_files(self):
+        path = self.mkfile('app-1/static/css/app.scss',
+            '$c: yellow; body { color: $c; }')
+        css = self.filter('css/app.css')
+        self.assertEquals(css, 'body {\n  color: yellow; }')
+
+    def test_processes_scss_files_with_deps(self):
+        self.mkfile('static/css/folder/_dep.scss', '$c: black;')
+        path = self.mkfile('static/css/with_deps.scss',
+            '@import "folder/dep"; body { color: $c; }')
+        css = self.filter('css/with_deps.css')
+        self.assertEquals(css, 'body {\n  color: black; }')
+
+    def test_processes_scss_files_with_app_deps(self):
+        self.mkfile('app-1/static/css/folder/_dep.scss', '$c: white;')
+        path = self.mkfile('static/css/with_app_deps.scss',
+            '@import "folder/dep"; body { color: $c; }')
+        css = self.filter('css/with_app_deps.css')
+        self.assertEquals(css, 'body {\n  color: white; }')
+
+    def test_integrates_static_url_with_sass(self):
+        path = self.mkfile('static/css/with_url.scss',
+            'body { background: static-url("img/bg.jpg"); }')
+        css = self.filter('css/with_url.css')
+        self.assertEquals(css,
+            'body {\n  background: url("/static/img/bg.jpg"); }')

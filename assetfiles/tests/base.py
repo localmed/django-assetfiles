@@ -1,11 +1,13 @@
 import os, shutil, tempfile
 
+from django.conf import settings
 from django.contrib.staticfiles import finders, storage
 from django.test import TestCase
 from django.utils.functional import empty
 
 from assetfiles import filters
 from assetfiles.filters.base import BaseFilter
+import assetfiles.settings
 
 class AssetfilesTestCase(TestCase):
     def setUp(self):
@@ -20,15 +22,16 @@ class AssetfilesTestCase(TestCase):
         # run and pick up changes in settings.ASSETFILES_FILTERS.
         filters._filters.clear()
 
-    def mkdir(self):
-        path = tempfile.mkdtemp(prefix='assetfiles-')
-        self.addCleanup(shutil.rmtree, path, ignore_errors=True)
-        return path
+        if not os.path.exists(settings.PROJECT_ROOT):
+            shutil.copytree(
+                os.path.join(settings.TESTS_ROOT, 'project-template'),
+                settings.PROJECT_ROOT
+            )
+        self.addCleanup(shutil.rmtree, settings.PROJECT_ROOT, ignore_errors=True)
+        self.root = settings.PROJECT_ROOT
 
-    def mkfile(self, relative_path, content=None, root=None):
-        if root is None and self.root: root = self.root
-
-        abspath = os.path.join(root, relative_path)
+    def mkfile(self, path, content=None):
+        abspath = os.path.join(self.root, path)
         dirname = os.path.dirname(abspath)
 
         if not os.path.isdir(dirname): os.makedirs(dirname)
