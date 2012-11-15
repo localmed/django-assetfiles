@@ -1,10 +1,11 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 from assetfiles import __version__
 
-here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.md')).read()
+root = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(root, 'README.md'), 'r') as file:
+    README = file.read()
 
 setup(
     name='django-assetfiles',
@@ -16,6 +17,7 @@ setup(
     url='http://github.com/LocalMed/django-assetfiles',
     license='MIT',
     packages=find_packages(),
+    include_package_data=True,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
