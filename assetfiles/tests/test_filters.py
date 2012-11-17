@@ -1,10 +1,13 @@
-import os, shutil, tempfile
+import os
+import shutil
+import tempfile
 
 from assetfiles import assets, filters, settings
 from assetfiles.filters.base import BaseFilter
 from assetfiles.filters.sass import SassError, SassFilter
 from assetfiles.tests.base import (AssetfilesTestCase, ReplaceFilter,
     Filter1, Filter2)
+
 
 class TestBaseFilter(AssetfilesTestCase):
     def test_filters_a_single_input_file(self):
@@ -57,6 +60,7 @@ class TestBaseFilter(AssetfilesTestCase):
         self.assertEquals('dir/main.bar', filter.output_path('dir/main.bar.foo'))
         self.assertEquals('dir/main.bar', filter.output_path('dir/main.foo'))
 
+
 class TestFilters(AssetfilesTestCase):
     def setUp(self):
         super(TestFilters, self).setUp()
@@ -79,6 +83,7 @@ class TestFilters(AssetfilesTestCase):
         self.assertIsInstance(filters.find_by_output_path('main.out'), Filter1)
         self.assertIsInstance(filters.find_by_output_path('main.out2'), Filter2)
         self.assertEquals(None, filters.find_by_output_path('main.in'))
+
 
 class TestSassFilter(AssetfilesTestCase):
     def filter(self, path):

@@ -6,12 +6,14 @@ from django.utils import six
 
 from assetfiles.tests.base import AssetfilesTestCase
 
+
 def call_command(*args, **kwargs):
     out = six.StringIO()
     kwargs.update({'stdout': out, 'verbosity': 1})
     management.call_command(*args, **kwargs)
     out.seek(0)
     return out
+
 
 class TestFindStatic(AssetfilesTestCase):
     def setUp(self):
@@ -34,9 +36,28 @@ class TestFindStatic(AssetfilesTestCase):
         self.assertIn('app-1/static/css/main.css', lines[1])
         self.assertIn('app-2/static/css/main.css', lines[2])
 
+
 class TestCollectStatic(AssetfilesTestCase):
     def collectstatic(self):
         call_command('collectstatic', interactive=False, clear=True)
+
+    def assertStaticFileNotFound(self, path):
+        static_path = os.path.join(settings.STATIC_ROOT, path)
+        self.assertFalse(os.path.isfile(static_path),
+            "file '{0}' exists".format(path))
+
+    def assertStaticFileExists(self, path):
+        static_path = os.path.join(settings.STATIC_ROOT, path)
+        self.assertTrue(os.path.isfile(static_path),
+            "file '{0}' does not exist".format(path))
+
+    def assertStaticFileContains(self, path, text):
+        static_path = os.path.join(settings.STATIC_ROOT, path)
+
+        self.assertStaticFileExists(path)
+        with open(static_path, 'r') as file:
+            self.assertIn(text, file.read(),
+                "'{0}' not in file '{1}'".format(text, path))
 
     def test_copies_static_files(self):
         self.mkfile('static/css/static.css',
@@ -89,21 +110,3 @@ class TestCollectStatic(AssetfilesTestCase):
         self.collectstatic()
         self.assertStaticFileNotFound('css/_dep.css')
         self.assertStaticFileNotFound('css/_dep.scss')
-
-    def assertStaticFileNotFound(self, path):
-        static_path = os.path.join(settings.STATIC_ROOT, path)
-        self.assertFalse(os.path.isfile(static_path),
-            "file '{0}' exists".format(path))
-
-    def assertStaticFileExists(self, path):
-        static_path = os.path.join(settings.STATIC_ROOT, path)
-        self.assertTrue(os.path.isfile(static_path),
-            "file '{0}' does not exist".format(path))
-
-    def assertStaticFileContains(self, path, text):
-        static_path = os.path.join(settings.STATIC_ROOT, path)
-
-        self.assertStaticFileExists(path)
-        with open(static_path, 'r') as file:
-            self.assertIn(text, file.read(),
-                "'{0}' not in file '{1}'".format(text, path))

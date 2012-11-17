@@ -3,12 +3,15 @@ from django.core.files.base import File, ContentFile
 from django.core.files.storage import Storage
 from django.utils.encoding import filepath_to_uri
 
+
 class TempFilesStorage(Storage):
     """
     TempFilesStorage is an in-memory storage of files and file-like strings.
+
     This is used to temporarily hold processed files before they're copied
     to a new storage during `collectstatic`
     """
+
     def __init__(self):
         self.files = {}
 

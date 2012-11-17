@@ -6,30 +6,44 @@ from django.utils.importlib import import_module
 from assetfiles import settings
 from assetfiles.filters.base import BaseFilter
 
+
 def find_by_input_path(intput_path):
     """
-    Return the first filter instance that would accept the given path as input.
+    Returns the first filter that would accept the given path as input.
+
+    Args:
+        input_path: An absolute path to the file
+    Returns:
+        The found filter instance or `None`
     """
     for filter in get_filters():
         if filter.matches_input(intput_path):
             return filter
     return None
 
+
 def find_by_output_path(output_path):
     """
-    Return the first filter instance that would output the given path.
+    Returns the first filter that would output to the given path.
+
+    Args:
+        output_path: An absolute path to the file
+    Returns:
+        The found filter instance or `None`
     """
     for filter in get_filters():
         if filter.matches_output(output_path):
             return filter
     return None
 
+
 def get_filters():
     """
-    Return filter instances configured in settings.ASSETFILES_FILTERS.
+    Returns filter instances configured in ASSETFILES_FILTERS.
     """
     for filter_path in settings.FILTERS:
         yield get_filter(filter_path)
+
 
 def _get_filter(import_path):
     """

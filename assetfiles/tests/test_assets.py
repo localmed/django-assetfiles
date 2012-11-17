@@ -1,11 +1,9 @@
-import os, shutil, tempfile
-
 from django.conf import settings
-from django.test import TestCase
 
 from assetfiles import assets
 from assetfiles.tests.base import AssetfilesTestCase, Filter1, Filter2
 import assetfiles.settings
+
 
 class TestAssets(AssetfilesTestCase):
     def setUp(self):

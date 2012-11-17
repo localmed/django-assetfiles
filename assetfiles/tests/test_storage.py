@@ -3,6 +3,7 @@ from django.utils import six
 
 from assetfiles.storage import TempFilesStorage
 
+
 class TestTempFilesStorage(TestCase):
     def test_stores_in_memory(self):
         storage = TempFilesStorage()

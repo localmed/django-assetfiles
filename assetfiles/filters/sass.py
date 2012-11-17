@@ -1,16 +1,25 @@
-import os, pipes
+import os
+import pipes
 from subprocess import Popen, PIPE
 
 from django.conf import settings
 from django.contrib.staticfiles.finders import find
 
-from assetfiles.filters.base import BaseFilter
+from assetfiles.filters.base import BaseFilter, ExtFilter
 import assetfiles.settings
 
-class SassFilter(BaseFilter):
+
+class SassFilter(ExtFilter, BaseFilter):
+    """
+    Filters Sass files into CSS.
+
+    Attributes:
+        functions_path: A path to the Sass extension functions for Django
+            integration.
+    """
     input_exts = ('sass', 'scss')
     output_ext = 'css'
-    sass_functions = os.path.abspath(
+    functions_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), '../scripts/sass_functions.rb'))
 
     def filter(self, input):
@@ -20,7 +29,7 @@ class SassFilter(BaseFilter):
         })
 
         command = 'sass {0} {1} {2}'.format(
-            '--require {0}'.format(pipes.quote(self.sass_functions)),
+            '--require {0}'.format(pipes.quote(self.functions_path)),
             ' '.join(['--load-path {0}'.format(pipes.quote(path)) for path in sass_load_paths]),
             pipes.quote(input),
         )
@@ -39,9 +48,18 @@ class SassFilter(BaseFilter):
         _, file_name = os.path.split(output_path)
         return file_name.startswith('_')
 
+
 def get_static_sass_dirs(dirs=None):
     """
     Returns the directories with Sass files within the static directories.
+
+    Args:
+        dirs: A list or tuple of directory names that contain Sass files.
+            Can be configured with the ASSETFILES_SASS_DIRS setting, which by
+            default is `('css',)`
+
+    Returns:
+        A list of directory paths containing Sass files.
     """
     if not dirs: dirs = assetfiles.settings.SASS_DIRS
 
@@ -50,11 +68,14 @@ def get_static_sass_dirs(dirs=None):
         load_paths += find(dir, all=True) or []
     return load_paths
 
+
 """
-These directories will be added to the Sass load path.
+Directories that will be added to the Sass load path.
+
 By default, these are 'css' directories within the static directories.
 """
 sass_load_paths = get_static_sass_dirs()
+
 
 class SassError(Exception):
     """

@@ -1,4 +1,6 @@
-import os, shutil, tempfile
+import os
+import shutil
+import tempfile
 
 from django.conf import settings
 from django.contrib.staticfiles import finders, storage
@@ -6,8 +8,9 @@ from django.test import TestCase
 from django.utils.functional import empty
 
 from assetfiles import filters
-from assetfiles.filters.base import BaseFilter
+from assetfiles.filters.base import BaseFilter, ExtFilter
 import assetfiles.settings
+
 
 class AssetfilesTestCase(TestCase):
     def setUp(self):
@@ -41,7 +44,8 @@ class AssetfilesTestCase(TestCase):
 
         return abspath
 
-class ReplaceFilter(BaseFilter):
+
+class ReplaceFilter(ExtFilter, BaseFilter):
     input_exts = ('foo', 'baz')
     output_ext = 'bar'
 
@@ -53,10 +57,12 @@ class ReplaceFilter(BaseFilter):
         with open(input, 'r') as file:
             return file.read().replace(self.pattern, self.replacement)
 
-class Filter1(BaseFilter):
+
+class Filter1(ExtFilter, BaseFilter):
     input_exts = ('in', 'in1')
     output_ext = 'out'
 
-class Filter2(BaseFilter):
+
+class Filter2(ExtFilter, BaseFilter):
     input_exts = ('in2',)
     output_ext = 'out2'

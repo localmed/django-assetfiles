@@ -4,11 +4,14 @@ from django.contrib.staticfiles.management.commands import collectstatic
 
 from assetfiles import filters
 
+
 class Command(collectstatic.Command):
+    """
+    Overrides staticfiles' `collectstatic` command to filter files before
+    copying them to the target storage.
+    """
+
     def copy_file(self, path, prefixed_path, source_storage):
-        """
-        Attempt to copy ``path`` with storage.
-        """
         # Skip this file if it was already copied earlier
         if prefixed_path in self.copied_files:
             return self.log("Skipping '%s' (already copied earlier)" % path)

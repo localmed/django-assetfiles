@@ -1,8 +1,10 @@
 """
-Views and functions for serving static files. These are only to be used during
-development, and SHOULD NOT be used in a production setting.
+Views and functions for serving assets and static files. These are only to be
+used during development, and SHOULD NOT be used in a production setting.
 """
-import mimetypes, os, posixpath
+import mimetypes
+import os
+import posixpath
 try:
     from urllib.parse import unquote
 except ImportError:     # Python 2
@@ -16,6 +18,7 @@ from django.views import static
 
 from assetfiles import assets
 
+
 def serve(request, path, document_root=None, insecure=False, **kwargs):
     """
     Serve static files below a given point in the directory structure or
@@ -23,7 +26,7 @@ def serve(request, path, document_root=None, insecure=False, **kwargs):
 
     To use, put a URL pattern such as::
 
-        (r'^(?P<path>.*)$', 'django.contrib.staticfiles.views.serve')
+        (r'^(?P<path>.*)$', 'assetfiles.views.serve')
 
     in your URLconf.
 

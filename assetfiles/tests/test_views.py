@@ -2,6 +2,7 @@ from django.test.client import Client
 
 from assetfiles.tests.base import AssetfilesTestCase
 
+
 class TestServe(AssetfilesTestCase):
     def test_returns_not_found_without_an_asset(self):
         response = Client().get('/static/non/existent/file.css')
