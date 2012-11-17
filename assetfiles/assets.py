@@ -18,7 +18,7 @@ def find(output_path):
         instance that would filter it.
 
     >>> find('/path/to/filtered.file')
-    ('/path/to/filterable.file', SomeFilter)
+    ('/path/to/filterable.file', <SomeFilter instance>)
     >>> find('/path/to/unfiltered.file')
     (None, None)
     """

@@ -5,7 +5,7 @@ from assetfiles.views import serve
 
 class AssetFilesHandler(StaticFilesHandler):
     """
-    Override StaticFilesHandler to use Assetfiles' view for serving files.
+    Overrides StaticFilesHandler to use Assetfiles' view for serving files.
     """
 
     def serve(self, request):

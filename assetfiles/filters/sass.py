@@ -83,12 +83,6 @@ class SassError(Exception):
     for Django.
     """
     def __init__(self, stacktrace):
-        self.stacktrace = stacktrace.split('\n')
-        self.message    = self._message()
-
-    def __str__(self):
-        return repr(self.message)
-
-    def _message(self):
-        trace = [line.strip() for line in self.stacktrace]
-        return ' '.join(trace[:2])
+        stacktrace = stacktrace.strip().split('\n')[:-1]
+        message = '\n'.join(stacktrace)
+        super(SassError, self).__init__(message)

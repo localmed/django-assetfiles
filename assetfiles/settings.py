@@ -1,5 +1,6 @@
 from django.conf import settings
 
+
 FILTERS = getattr(settings, 'ASSETFILES_FILTERS', (
     'assetfiles.filters.sass.SassFilter',
 ))

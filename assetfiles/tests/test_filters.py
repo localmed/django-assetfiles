@@ -122,3 +122,10 @@ class TestSassFilter(AssetfilesTestCase):
         css = self.filter('css/with_url.css')
         self.assertEquals(css,
             'body {\n  background: url("/static/img/bg.jpg"); }')
+
+    def test_raises_syntax_error(self):
+        with self.assertRaisesRegexp(
+                SassError,
+                r'.*?Syntax error.*?line 5.*?static/css/syntax_error\.scss'):
+            self.mkfile('static/css/syntax_error.scss', '\n\n\n\nbody {')
+            self.filter('css/syntax_error.css')
