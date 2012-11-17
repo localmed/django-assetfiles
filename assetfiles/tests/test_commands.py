@@ -110,3 +110,8 @@ class TestCollectStatic(AssetfilesTestCase):
         self.collectstatic()
         self.assertStaticFileNotFound('css/_dep.css')
         self.assertStaticFileNotFound('css/_dep.scss')
+
+    def test_processes_coffee_files(self):
+        self.mkfile('static/js/simple.coffee', 'a = foo: "1#{2}3"')
+        self.collectstatic()
+        self.assertStaticFileContains('js/simple.js', 'foo: "1" + 2 + "3"')

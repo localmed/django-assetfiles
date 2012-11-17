@@ -4,9 +4,10 @@ import tempfile
 
 from assetfiles import assets, filters, settings
 from assetfiles.filters.base import BaseFilter
-from assetfiles.filters.sass import SassError, SassFilter
-from assetfiles.tests.base import (AssetfilesTestCase, ReplaceFilter,
-    Filter1, Filter2)
+from assetfiles.filters.coffee import CoffeeScriptFilterError
+from assetfiles.filters.sass import SassFilterError
+from assetfiles.tests.base import (AssetfilesTestCase,
+                                   ReplaceFilter, Filter1, Filter2)
 
 
 class TestBaseFilter(AssetfilesTestCase):
@@ -85,47 +86,67 @@ class TestFilters(AssetfilesTestCase):
         self.assertEquals(None, filters.find_by_output_path('main.in'))
 
 
-class TestSassFilter(AssetfilesTestCase):
-    def filter(self, path):
-        asset_path, filter = assets.find(path)
-        return filter.filter(asset_path).strip()
+def filter(path):
+    asset_path, filter = assets.find(path)
+    return filter.filter(asset_path).strip()
 
+
+class TestSassFilter(AssetfilesTestCase):
     def test_processes_scss_files(self):
-        path = self.mkfile('static/css/simple.scss',
+        self.mkfile(
+            'static/css/simple.scss',
             '$c: red; body { color: $c; }')
-        css = self.filter('css/simple.css')
+        css = filter('css/simple.css')
         self.assertEquals(css, 'body {\n  color: red; }')
 
     def test_processes_app_scss_files(self):
-        path = self.mkfile('app-1/static/css/app.scss',
+        self.mkfile(
+            'app-1/static/css/app.scss',
             '$c: yellow; body { color: $c; }')
-        css = self.filter('css/app.css')
+        css = filter('css/app.css')
         self.assertEquals(css, 'body {\n  color: yellow; }')
 
     def test_processes_scss_files_with_deps(self):
         self.mkfile('static/css/folder/_dep.scss', '$c: black;')
-        path = self.mkfile('static/css/with_deps.scss',
+        self.mkfile(
+            'static/css/with_deps.scss',
             '@import "folder/dep"; body { color: $c; }')
-        css = self.filter('css/with_deps.css')
+        css = filter('css/with_deps.css')
         self.assertEquals(css, 'body {\n  color: black; }')
 
     def test_processes_scss_files_with_app_deps(self):
         self.mkfile('app-1/static/css/folder/_dep.scss', '$c: white;')
-        path = self.mkfile('static/css/with_app_deps.scss',
+        self.mkfile(
+            'static/css/with_app_deps.scss',
             '@import "folder/dep"; body { color: $c; }')
-        css = self.filter('css/with_app_deps.css')
+        css = filter('css/with_app_deps.css')
         self.assertEquals(css, 'body {\n  color: white; }')
 
     def test_integrates_static_url_with_sass(self):
-        path = self.mkfile('static/css/with_url.scss',
+        self.mkfile(
+            'static/css/with_url.scss',
             'body { background: static-url("img/bg.jpg"); }')
-        css = self.filter('css/with_url.css')
+        css = filter('css/with_url.css')
         self.assertEquals(css,
             'body {\n  background: url("/static/img/bg.jpg"); }')
 
     def test_raises_syntax_error(self):
         with self.assertRaisesRegexp(
-                SassError,
-                r'.*?Syntax error.*?line 5.*?static/css/syntax_error\.scss'):
+                SassFilterError,
+                r'.*?Syntax error.*?\n.*?line 5.*?static/css/syntax_error\.scss'):
             self.mkfile('static/css/syntax_error.scss', '\n\n\n\nbody {')
-            self.filter('css/syntax_error.css')
+            filter('css/syntax_error.css')
+
+
+class TestCoffeeScriptFilter(AssetfilesTestCase):
+    def test_processes_coffee_files(self):
+        self.mkfile('static/js/simple.coffee', 'a = foo: "1#{2}3"')
+        js = filter('js/simple.js')
+        self.assertIn('foo: "1" + 2 + "3"', js)
+
+    def test_raises_syntax_error(self):
+        with self.assertRaisesRegexp(
+                CoffeeScriptFilterError,
+                r'.*?SyntaxError.*?static/js/simple\.coffee.*?line 5'):
+            self.mkfile('static/js/simple.coffee', '\n\n\n\na = foo: "1#{2}3')
+            filter('js/simple.js')
