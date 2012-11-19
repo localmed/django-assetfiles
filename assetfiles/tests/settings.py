@@ -10,7 +10,7 @@ PROJECT_ROOT = path.join(TESTS_ROOT, 'project')
 if not path.exists(PROJECT_ROOT):
     shutil.copytree(path.join(TESTS_ROOT, 'project-template'), PROJECT_ROOT)
 
-TEST_RUNNER = 'discover_runner.DiscoverRunner'
+TEST_RUNNER = 'django_nose.run_tests'
 
 DATABASES = {
     'default': {
@@ -20,6 +20,7 @@ DATABASES = {
 }
 
 INSTALLED_APPS = (
+    'django_nose',
     'assetfiles',
     'assetfiles.tests.project.app-1',
     'assetfiles.tests.project.app-2',

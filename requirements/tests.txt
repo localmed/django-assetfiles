@@ -1,3 +1,2 @@
+django_nose
 coverage
-django-discover-runner
-unittest2
