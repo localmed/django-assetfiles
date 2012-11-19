@@ -17,6 +17,7 @@ class CoffeeScriptFilter(ExtFilter, BaseFilter):
 
         process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         stdout, stderr = process.communicate()
+
         if process.returncode:
             raise CoffeeScriptFilterError(stderr)
         else:

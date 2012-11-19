@@ -96,39 +96,45 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/simple.scss',
             '$c: red; body { color: $c; }')
-        css = filter('css/simple.css')
-        self.assertEquals(css, 'body {\n  color: red; }')
+        self.assertEquals(filter('css/simple.css'), 'body {\n  color: red; }')
 
     def test_processes_app_scss_files(self):
         self.mkfile(
             'app-1/static/css/app.scss',
             '$c: yellow; body { color: $c; }')
-        css = filter('css/app.css')
-        self.assertEquals(css, 'body {\n  color: yellow; }')
+        self.assertEquals(filter('css/app.css'), 'body {\n  color: yellow; }')
 
     def test_processes_scss_files_with_deps(self):
         self.mkfile('static/css/folder/_dep.scss', '$c: black;')
         self.mkfile(
             'static/css/with_deps.scss',
             '@import "folder/dep"; body { color: $c; }')
-        css = filter('css/with_deps.css')
-        self.assertEquals(css, 'body {\n  color: black; }')
+        self.assertEquals(
+            filter('css/with_deps.css'),
+            'body {\n  color: black; }')
 
     def test_processes_scss_files_with_app_deps(self):
         self.mkfile('app-1/static/css/folder/_dep.scss', '$c: white;')
         self.mkfile(
             'static/css/with_app_deps.scss',
             '@import "folder/dep"; body { color: $c; }')
-        css = filter('css/with_app_deps.css')
-        self.assertEquals(css, 'body {\n  color: white; }')
+        self.assertEquals(
+            filter('css/with_app_deps.css'),
+            'body {\n  color: white; }')
 
     def test_integrates_static_url_with_sass(self):
         self.mkfile(
             'static/css/with_url.scss',
             'body { background: static-url("img/bg.jpg"); }')
-        css = filter('css/with_url.css')
-        self.assertEquals(css,
+        self.assertEquals(
+            filter('css/with_url.css'),
             'body {\n  background: url("/static/img/bg.jpg"); }')
+
+    def test_integrates_with_compass(self):
+        self.mkfile(
+            'static/css/with_compass.scss',
+            '@import "compass"; .btn { @include border-radius(5px); }')
+        self.assertIn('border-radius: 5px;', filter('css/with_compass.css'))
 
     def test_raises_syntax_error(self):
         with self.assertRaisesRegexp(
@@ -141,8 +147,7 @@ class TestSassFilter(AssetfilesTestCase):
 class TestCoffeeScriptFilter(AssetfilesTestCase):
     def test_processes_coffee_files(self):
         self.mkfile('static/js/simple.coffee', 'a = foo: "1#{2}3"')
-        js = filter('js/simple.js')
-        self.assertIn('foo: "1" + 2 + "3"', js)
+        self.assertIn('foo: "1" + 2 + "3"', filter('js/simple.js'))
 
     def test_raises_syntax_error(self):
         with self.assertRaisesRegexp(

@@ -22,20 +22,24 @@ class SassFilter(ExtFilter, BaseFilter):
     functions_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), '../scripts/sass_functions.rb'))
 
-    def filter(self, input):
-        env = dict(os.environ)
-        env.update({
-            'DJANGO_STATIC_URL': settings.STATIC_URL,
-        })
+    def __init__(self, options=None):
+        if options is None:
+            options = {}
+        if 'compass' not in options:
+            options['compass'] = self._detect_compass()
+        self.options = options
 
-        command = 'sass {0} {1} {2}'.format(
-            '--require {0}'.format(pipes.quote(self.functions_path)),
-            ' '.join(['--load-path {0}'.format(pipes.quote(path)) for path in sass_load_paths]),
-            pipes.quote(input),
-        )
+    def filter(self, input):
+        command = 'sass {0} {1}'.format(
+            ' '.join(self._build_args()),
+            pipes.quote(input))
+
+        env = dict(os.environ)
+        env.update({'DJANGO_STATIC_URL': settings.STATIC_URL})
 
         process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, env=env)
         stdout, stderr = process.communicate()
+
         if process.returncode:
             raise SassFilterError(stderr)
         else:
@@ -47,6 +51,27 @@ class SassFilter(ExtFilter, BaseFilter):
         """
         _, file_name = os.path.split(output_path)
         return file_name.startswith('_')
+
+    def _build_args(self):
+        """
+        Returns a list of arguments for the Sass command.
+        """
+        args = []
+        if self.options['compass']:
+            args.append('--compass')
+        if self.functions_path is not None:
+            args.append(
+                '--require {0}'.format(pipes.quote(self.functions_path)))
+        if sass_load_paths:
+            for path in sass_load_paths:
+                args.append('--load-path {0}'.format(pipes.quote(path)))
+        return args
+
+    def _detect_compass(self):
+        """
+        Returns true if Compass integration is available.
+        """
+        return os.system('which compass > /dev/null') is 0
 
 
 def get_static_sass_dirs(dirs=None):
