@@ -136,6 +136,40 @@ class TestSassFilter(AssetfilesTestCase):
             '@import "compass"; .btn { @include border-radius(5px); }')
         self.assertIn('border-radius: 5px;', filter('css/with_compass.css'))
 
+    def test_integrates_with_compass_image_url(self):
+        self.mkfile(
+            'static/css/image_url.scss',
+            'body { background: image-url("img/bg.jpg"); }')
+        self.mkfile(
+            'static/css/only_path.scss',
+            'body { background: url(image-url("img/bg.jpg", true)); }')
+        self.mkfile(
+            'static/css/cache_buster.scss',
+            'body { background: image-url("img/bg.jpg", false, true); }')
+        self.assertEquals(
+            filter('css/image_url.css'),
+            'body {\n  background: url("/static/img/bg.jpg"); }')
+        self.assertEquals(
+            filter('css/only_path.css'),
+            'body {\n  background: url("/static/img/bg.jpg"); }')
+        self.assertEquals(
+            filter('css/cache_buster.css'),
+            'body {\n  background: url("/static/img/bg.jpg"); }')
+
+    def test_integrates_with_compass_font_url(self):
+        self.mkfile(
+            'static/css/font_url.scss',
+            '@font-face { src: font-url("fonts/font.ttf"); }')
+        self.mkfile(
+            'static/css/only_path.scss',
+            '@font-face { src: url(font-url("fonts/font.ttf", true)); }')
+        self.assertEquals(
+            filter('css/font_url.css'),
+            '@font-face {\n  src: url("/static/fonts/font.ttf"); }')
+        self.assertEquals(
+            filter('css/only_path.css'),
+            '@font-face {\n  src: url("/static/fonts/font.ttf"); }')
+
     def test_raises_syntax_error(self):
         with self.assertRaisesRegexp(
                 SassFilterError,
