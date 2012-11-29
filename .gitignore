@@ -38,3 +38,11 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Node.js
+node_modules
+
+# Ruby
+.bundle
+vendor
+Gemfile.lock
