@@ -49,7 +49,17 @@ Usage
 
     Assetfiles will automatically serve up the processed version of `main.scss` at the static url of `/static/css/main.css`.
 
-3. For deployment, run `collectstatic` as usual and Assetfiles will process and copy over the assets:
+4. To serve assets in development, either use `runserver` as normal or add the following to your `urls.py`:
+
+    ``` python
+    from assetfiles.urls import assetfiles_urlpatterns
+
+    # ... the rest of your URLconf goes here ...
+
+    urlpatterns += assetfiles_urlpatterns()
+    ```
+
+5. For deployment, run `collectstatic` as usual and Assetfiles will process and copy over the assets:
 
     ``` sh
     $ python manage.py collectstatic
