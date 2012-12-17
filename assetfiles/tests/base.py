@@ -64,5 +64,5 @@ class Filter1(ExtFilter, BaseFilter):
 
 
 class Filter2(ExtFilter, BaseFilter):
-    input_exts = ('in2',)
+    input_ext = 'in2'
     output_ext = 'out2'

@@ -21,10 +21,12 @@ class TestBaseFilter(AssetfilesTestCase):
         filter = ReplaceFilter()
         path1 = os.path.join(self.root, 'main.foo')
         path2 = os.path.join(self.root, 'main.baz')
-        path3 = os.path.join(self.root, 'main.css')
+        path3 = os.path.join(self.root, 'main.plugin.foo')
+        path4 = os.path.join(self.root, 'main.css')
         self.assertTrue(filter.matches_input(path1))
         self.assertTrue(filter.matches_input(path2))
-        self.assertFalse(filter.matches_input(path3))
+        self.assertTrue(filter.matches_input(path3))
+        self.assertFalse(filter.matches_input(path4))
 
     def test_does_not_match_input_file_without_input_exts(self):
         filter = ReplaceFilter()
@@ -34,12 +36,19 @@ class TestBaseFilter(AssetfilesTestCase):
         self.assertFalse(filter.matches_input(path1))
         self.assertFalse(filter.matches_input(path2))
 
-    def test_matches_input_file_by_ext(self):
+    def test_set_single_input_ext(self):
+        filter = ReplaceFilter()
+        filter.input_ext = 'foo'
+        self.assertEquals(('foo',), filter.input_exts)
+
+    def test_matches_output_file_by_ext(self):
         filter = ReplaceFilter()
         path1 = os.path.join(self.root, 'main.bar')
-        path2 = os.path.join(self.root, 'main.foo')
+        path2 = os.path.join(self.root, 'main.plugin.bar')
+        path3 = os.path.join(self.root, 'main.foo')
         self.assertTrue(filter.matches_output(path1))
-        self.assertFalse(filter.matches_output(path2))
+        self.assertTrue(filter.matches_output(path2))
+        self.assertFalse(filter.matches_output(path3))
 
     def test_does_not_match_output_file_without_output_ext(self):
         filter = ReplaceFilter()
@@ -55,11 +64,18 @@ class TestBaseFilter(AssetfilesTestCase):
             'dir/main.bar.baz',
             'dir/main.baz',
         ]), filter.possible_input_paths('dir/main.bar'))
+        self.assertEquals(set([
+            'dir/main.plugin.bar.foo',
+            'dir/main.plugin.foo',
+            'dir/main.plugin.bar.baz',
+            'dir/main.plugin.baz',
+        ]), filter.possible_input_paths('dir/main.plugin.bar'))
 
     def test_returns_output_path(self):
         filter = ReplaceFilter()
-        self.assertEquals('dir/main.bar', filter.output_path('dir/main.bar.foo'))
         self.assertEquals('dir/main.bar', filter.output_path('dir/main.foo'))
+        self.assertEquals('dir/main.bar', filter.output_path('dir/main.bar.foo'))
+        self.assertEquals('dir/main.plugin.bar', filter.output_path('dir/main.plugin.foo'))
 
 
 class TestFilters(AssetfilesTestCase):

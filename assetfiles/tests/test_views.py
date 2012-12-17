@@ -12,12 +12,16 @@ class TestServe(AssetfilesTestCase):
         self.mkfile('static/css/static.css', 'body { color: red; }')
         response = Client().get('/static/css/static.css')
         self.assertEquals(response.content.strip(), 'body { color: red; }')
-        self.assertEquals(response.get('content-type'), 'text/css')
 
     def test_returns_static_files_with_correct_content_type(self):
         self.mkfile('static/css/static.css')
         response = Client().get('/static/css/static.css')
         self.assertEquals(response.get('content-type'), 'text/css')
+
+    def test_returns_static_files_with_extra_extensions(self):
+        self.mkfile('app-1/static/js/jquery.plugin.js', '$.fn.plugin = {};')
+        response = Client().get('/static/js/jquery.plugin.js')
+        self.assertEquals(response.content.strip(), '$.fn.plugin = {};')
 
     def test_returns_app_static_files(self):
         self.mkfile('app-1/static/css/app_static.css', 'body { color: blue; }')

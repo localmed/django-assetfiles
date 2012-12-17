@@ -85,8 +85,12 @@ class ExtFilter(object):
         input_exts: A tuple of extensions (without the prefixed ".")
         output_ext: A single output extension (again, without the prefixed ".")
     """
-    input_exts = ()
+    input_exts = None
     output_ext = None
+
+    def __init__(self):
+        if not self.input_exts and self.input_ext:
+            self.input_exts = (self.input_ext,)
 
     def matches_input(self, intput_path):
         if self.input_exts:
@@ -104,11 +108,16 @@ class ExtFilter(object):
             for ext in self.input_exts:
                 ext = '.' + ext
                 paths.add(output_path + ext)
-                paths.add(re.sub(r'\..*$', ext, output_path))
+                paths.add(re.sub(r'\.[^\.]*$', ext, output_path))
         return paths
 
     def output_path(self, input_path):
         if self.output_ext:
+            path = re.sub(r'\.{0}'.format(self.output_ext), '', input_path)
             ext = '.' + self.output_ext
-            return re.sub(r'\..*$', ext, input_path)
+            return re.sub(r'\.[^\.]*$', ext, path)
         return None
+
+    def set_input_ext(self, value):
+        self.input_exts = (value,)
+    input_ext = property(fset=set_input_ext)
