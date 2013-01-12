@@ -3,7 +3,7 @@ import shutil
 import tempfile
 
 from assetfiles import assets, filters, settings
-from assetfiles.filters.base import BaseFilter, SingleOutputMixin
+from assetfiles.filters.base import BaseFilter, SingleOutputMixin, SingleInputMixin
 from assetfiles.filters.coffee import CoffeeScriptFilterError
 from assetfiles.filters.sass import SassFilterError
 from assetfiles.tests.base import (AssetfilesTestCase,
@@ -107,9 +107,12 @@ class TestBaseFilter(AssetfilesTestCase):
 
     def test_derive_output_path(self):
         filter = ReplaceFilter()
-        self.assertEquals('dir/main.bar', filter.derive_output_path('dir/main.foo'))
-        self.assertEquals('dir/main.bar', filter.derive_output_path('dir/main.bar.foo'))
-        self.assertEquals('dir/main.plugin.bar', filter.derive_output_path('dir/main.plugin.foo'))
+        self.assertEquals('dir/main.bar',
+            filter.derive_output_path('dir/main.foo'))
+        self.assertEquals('dir/main.bar',
+            filter.derive_output_path('dir/main.bar.foo'))
+        self.assertEquals('dir/main.plugin.bar',
+            filter.derive_output_path('dir/main.plugin.foo'))
 
 
 class TestSingleOutputMixin(AssetfilesTestCase):
@@ -128,6 +131,26 @@ class TestSingleOutputMixin(AssetfilesTestCase):
         filter = self.SingleOutputFilter(output_path='dir/main.out')
         self.assertEquals(filter.derive_output_path('main.in'), 'dir/main.out')
         self.assertEquals(filter.derive_output_path('dir/main.in'), 'dir/main.out')
+
+
+class TestSingleInputMixin(AssetfilesTestCase):
+    class SingleInputFilter(SingleInputMixin, BaseFilter):
+        pass
+
+    def test_matches_set_input_path(self):
+        filter = self.SingleInputFilter(input_path='dir/main.in')
+        self.assertFalse(filter.matches_input('main.in'))
+        self.assertFalse(filter.matches_input('dir/main.out'))
+        self.assertFalse(filter.matches_input('dir/main'))
+        self.assertFalse(filter.matches_input('dir/dir/main.in'))
+        self.assertTrue(filter.matches_input('dir/main.in'))
+
+    def test_derive_input_paths(self):
+        filter = self.SingleInputFilter(input_path='dir/main.in')
+        self.assertEquals(filter.derive_input_paths('main.in'),
+            set(['dir/main.in']))
+        self.assertEquals(filter.derive_input_paths('dir/main.in'),
+            set(['dir/main.in']))
 
 
 class TestSassFilter(AssetfilesTestCase):

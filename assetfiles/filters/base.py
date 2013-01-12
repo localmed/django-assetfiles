@@ -85,7 +85,14 @@ class SingleOutputMixin(object):
 
 
 class SingleInputMixin(object):
-    pass
+    def __init__(self, input_path):
+        self.input_path = input_path
+
+    def matches_input(self, input_path):
+        return input_path is self.input_path
+
+    def derive_input_paths(self, output_path):
+        return set([self.input_path])
 
 
 class MultipleInputMixin(object):
