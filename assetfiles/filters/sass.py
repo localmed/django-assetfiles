@@ -6,11 +6,11 @@ from django.conf import settings
 from django.contrib.staticfiles.finders import find
 from django.utils.encoding import smart_text
 
-from assetfiles.filters.base import BaseFilter, ExtFilter
+from assetfiles.filters.base import BaseFilter, ExtensionMixin
 import assetfiles.settings
 
 
-class SassFilter(ExtFilter, BaseFilter):
+class SassFilter(ExtensionMixin, BaseFilter):
     """
     Filters Sass files into CSS.
 
@@ -46,12 +46,12 @@ class SassFilter(ExtFilter, BaseFilter):
         else:
             return stdout
 
-    def skip_output_path(self, output_path):
+    def is_filterable(self, output_path):
         """
         Skips files prefixed with a '_'. These are Sass dependencies.
         """
         _, file_name = os.path.split(output_path)
-        return file_name.startswith('_')
+        return not file_name.startswith('_')
 
     def _build_args(self):
         """

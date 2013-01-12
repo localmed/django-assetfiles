@@ -24,8 +24,8 @@ def find(output_path):
     """
     filter = filters.find_by_output_path(output_path)
     if filter:
-        for possible_path in filter.possible_input_paths(output_path):
-            full_path = finders.find(possible_path)
-            if full_path:
-                return full_path, filter
+        for input_path in filter.derive_input_paths(output_path):
+            full_input_path = finders.find(input_path)
+            if full_input_path:
+                return full_input_path, filter
     return None, None

@@ -20,11 +20,23 @@ class BaseFilter(object):
         Returns true if the output file would be created by this filter.
 
         Args:
-            output_path: An absolute path to the file
+            output_path: A file path, relative to the root of the static dir.
         """
         return False
 
-    def possible_input_paths(self, output_path):
+    def is_filterable(self, output_path):
+        """
+        Determines wether to filter the file with the given output path.
+
+        Implement this method if there are certain paths that should not
+        be processed by this filter, i.e. they are dependencies.
+
+        Args:
+            output_path: A file path, relative to the root of the static dir.
+        """
+        return True
+
+    def derive_input_paths(self, output_path):
         """Returns possible input paths that would create the given output path.
 
         Args:
@@ -35,7 +47,7 @@ class BaseFilter(object):
         """
         return set()
 
-    def output_path(self, input_path):
+    def derive_output_path(self, input_path):
         """
         Returns the path to the ouput file created with the given input path.
 
@@ -45,18 +57,6 @@ class BaseFilter(object):
             An absolute path to the output file.
         """
         return None
-
-    def skip_output_path(self, output_path):
-        """
-        Determines wether to filter the file with the given output path.
-
-        Implement this method if there are certain paths that should not
-        be processed by this filter, i.e. they are dependencies.
-
-        Args:
-            output_path: An absolute path to the file.
-        """
-        return False
 
     def filter(self, input_path):
         """
@@ -73,7 +73,26 @@ class BaseFilter(object):
         raise NotImplementedError()
 
 
-class ExtFilter(object):
+class SingleOutputMixin(object):
+    def __init__(self, output_path):
+        self.output_path = output_path
+
+    def matches_output(self, output_path):
+        return output_path is self.output_path
+
+    def derive_output_path(self, input_path):
+        return self.output_path
+
+
+class SingleInputMixin(object):
+    pass
+
+
+class MultipleInputMixin(object):
+    pass
+
+
+class ExtensionMixin(object):
     """
     A mixin for filters that take a file with a certain file extension and
     output another.
@@ -102,7 +121,7 @@ class ExtFilter(object):
             return re.search(r'\.{0}$'.format(self.output_ext), output_path)
         return False
 
-    def possible_input_paths(self, output_path):
+    def derive_input_paths(self, output_path):
         paths = set()
         if self.input_exts:
             for ext in self.input_exts:
@@ -111,7 +130,7 @@ class ExtFilter(object):
                 paths.add(re.sub(r'\.[^\.]*$', ext, output_path))
         return paths
 
-    def output_path(self, input_path):
+    def derive_output_path(self, input_path):
         if self.output_ext:
             path = re.sub(r'\.{0}'.format(self.output_ext), '', input_path)
             ext = '.' + self.output_ext

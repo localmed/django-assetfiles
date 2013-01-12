@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.utils.functional import empty
 
 from assetfiles import filters
-from assetfiles.filters.base import BaseFilter, ExtFilter
+from assetfiles.filters.base import BaseFilter, ExtensionMixin
 import assetfiles.settings
 
 
@@ -45,7 +45,7 @@ class AssetfilesTestCase(TestCase):
         return abspath
 
 
-class ReplaceFilter(ExtFilter, BaseFilter):
+class ReplaceFilter(ExtensionMixin, BaseFilter):
     input_exts = ('foo', 'baz')
     output_ext = 'bar'
 
@@ -58,11 +58,11 @@ class ReplaceFilter(ExtFilter, BaseFilter):
             return file.read().replace(self.pattern, self.replacement)
 
 
-class Filter1(ExtFilter, BaseFilter):
+class Filter1(ExtensionMixin, BaseFilter):
     input_exts = ('in', 'in1')
     output_ext = 'out'
 
 
-class Filter2(ExtFilter, BaseFilter):
+class Filter2(ExtensionMixin, BaseFilter):
     input_ext = 'in2'
     output_ext = 'out2'

@@ -3,10 +3,10 @@ from subprocess import Popen, PIPE
 
 from django.utils.encoding import smart_text
 
-from assetfiles.filters.base import BaseFilter, ExtFilter
+from assetfiles.filters.base import BaseFilter, ExtensionMixin
 
 
-class CoffeeScriptFilter(ExtFilter, BaseFilter):
+class CoffeeScriptFilter(ExtensionMixin, BaseFilter):
     """
     Filters CoffeeScript files into JS.
     """

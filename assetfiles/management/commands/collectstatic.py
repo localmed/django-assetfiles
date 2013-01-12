@@ -22,7 +22,7 @@ class Command(collectstatic.Command):
 
         filter = filters.find_by_input_path(prefixed_path)
         if filter:
-            if filter.skip_output_path(prefixed_path):
+            if not filter.is_filterable(prefixed_path):
                 return self.log("Skipping '%s' (filter dependency)" % path)
             target_path, source_storage = self._filter_file(filter, path, prefixed_path, source_path, source_storage)
 
@@ -32,7 +32,7 @@ class Command(collectstatic.Command):
 
     def _filter_file(self, filter, path, prefixed_path, source_path, source_storage):
         from assetfiles.storage import TempFilesStorage
-        target_path = filter.output_path(prefixed_path)
+        target_path = filter.derive_output_path(prefixed_path)
         if self.dry_run:
             self.log("Pretending to process '%s'" % source_path, level=1)
         else:

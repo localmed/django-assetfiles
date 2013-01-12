@@ -3,7 +3,7 @@ import shutil
 import tempfile
 
 from assetfiles import assets, filters, settings
-from assetfiles.filters.base import BaseFilter
+from assetfiles.filters.base import BaseFilter, SingleOutputMixin
 from assetfiles.filters.coffee import CoffeeScriptFilterError
 from assetfiles.filters.sass import SassFilterError
 from assetfiles.tests.base import (AssetfilesTestCase,
@@ -17,6 +17,35 @@ def assertRaisesRegex(self, *args, **kwargs):
     if not hasattr(self, method):
         method = 'assertRaisesRegexp'
     return getattr(self, method)(*args, **kwargs)
+
+
+def filter(path):
+    asset_path, filter = assets.find(path)
+    return filter.filter(asset_path).strip()
+
+
+class TestFilters(AssetfilesTestCase):
+    def setUp(self):
+        super(TestFilters, self).setUp()
+        self.old_filters = settings.FILTERS
+        settings.FILTERS = (
+            'assetfiles.tests.base.Filter1',
+            'assetfiles.tests.base.Filter2',
+        )
+
+    def tearDown(self):
+        settings.FILTERS = self.old_filters
+
+    def test_find_by_input_path(self):
+        self.assertIsInstance(filters.find_by_input_path('main.in'), Filter1)
+        self.assertIsInstance(filters.find_by_input_path('main.in1'), Filter1)
+        self.assertIsInstance(filters.find_by_input_path('main.in2'), Filter2)
+        self.assertEquals(None, filters.find_by_input_path('main.out'))
+
+    def test_find_by_output_path(self):
+        self.assertIsInstance(filters.find_by_output_path('main.out'), Filter1)
+        self.assertIsInstance(filters.find_by_output_path('main.out2'), Filter2)
+        self.assertEquals(None, filters.find_by_output_path('main.in'))
 
 
 class TestBaseFilter(AssetfilesTestCase):
@@ -52,68 +81,53 @@ class TestBaseFilter(AssetfilesTestCase):
 
     def test_matches_output_file_by_ext(self):
         filter = ReplaceFilter()
-        path1 = os.path.join(self.root, 'main.bar')
-        path2 = os.path.join(self.root, 'main.plugin.bar')
-        path3 = os.path.join(self.root, 'main.foo')
-        self.assertTrue(filter.matches_output(path1))
-        self.assertTrue(filter.matches_output(path2))
-        self.assertFalse(filter.matches_output(path3))
+        self.assertTrue(filter.matches_output('main.bar'))
+        self.assertTrue(filter.matches_output('main.plugin.bar'))
+        self.assertFalse(filter.matches_output('main.foo'))
 
     def test_does_not_match_output_file_without_output_ext(self):
         filter = ReplaceFilter()
         filter.output_ext = None
-        path1 = os.path.join(self.root, 'main.bar')
-        self.assertFalse(filter.matches_output(path1))
+        self.assertFalse(filter.matches_output('main.bar'))
 
-    def test_returns_possible_input_paths(self):
+    def test_derive_input_paths(self):
         filter = ReplaceFilter()
         self.assertEqual(set([
             'dir/main.bar.foo',
             'dir/main.foo',
             'dir/main.bar.baz',
             'dir/main.baz',
-        ]), filter.possible_input_paths('dir/main.bar'))
-        self.assertEqual(set([
+        ]), filter.derive_input_paths('dir/main.bar'))
+        self.assertEquals(set([
             'dir/main.plugin.bar.foo',
             'dir/main.plugin.foo',
             'dir/main.plugin.bar.baz',
             'dir/main.plugin.baz',
-        ]), filter.possible_input_paths('dir/main.plugin.bar'))
+        ]), filter.derive_input_paths('dir/main.plugin.bar'))
 
-    def test_returns_output_path(self):
+    def test_derive_output_path(self):
         filter = ReplaceFilter()
-        self.assertEqual('dir/main.bar', filter.output_path('dir/main.foo'))
-        self.assertEqual('dir/main.bar', filter.output_path('dir/main.bar.foo'))
-        self.assertEqual('dir/main.plugin.bar', filter.output_path('dir/main.plugin.foo'))
+        self.assertEquals('dir/main.bar', filter.derive_output_path('dir/main.foo'))
+        self.assertEquals('dir/main.bar', filter.derive_output_path('dir/main.bar.foo'))
+        self.assertEquals('dir/main.plugin.bar', filter.derive_output_path('dir/main.plugin.foo'))
 
 
-class TestFilters(AssetfilesTestCase):
-    def setUp(self):
-        super(TestFilters, self).setUp()
-        self.old_filters = settings.FILTERS
-        settings.FILTERS = (
-            'assetfiles.tests.base.Filter1',
-            'assetfiles.tests.base.Filter2',
-        )
+class TestSingleOutputMixin(AssetfilesTestCase):
+    class SingleOutputFilter(SingleOutputMixin, BaseFilter):
+        pass
 
-    def tearDown(self):
-        settings.FILTERS = self.old_filters
+    def test_matches_set_output_path(self):
+        filter = self.SingleOutputFilter(output_path='dir/main.out')
+        self.assertFalse(filter.matches_output('main.out'))
+        self.assertFalse(filter.matches_output('dir/main.in'))
+        self.assertFalse(filter.matches_output('dir/main'))
+        self.assertFalse(filter.matches_output('dir/dir/main.out'))
+        self.assertTrue(filter.matches_output('dir/main.out'))
 
-    def test_filter_from_path(self):
-        self.assertIsInstance(filters.find_by_input_path('main.in'), Filter1)
-        self.assertIsInstance(filters.find_by_input_path('main.in1'), Filter1)
-        self.assertIsInstance(filters.find_by_input_path('main.in2'), Filter2)
-        self.assertEqual(None, filters.find_by_input_path('main.out'))
-
-    def test_filter_to_path(self):
-        self.assertIsInstance(filters.find_by_output_path('main.out'), Filter1)
-        self.assertIsInstance(filters.find_by_output_path('main.out2'), Filter2)
-        self.assertEqual(None, filters.find_by_output_path('main.in'))
-
-
-def filter(path):
-    asset_path, filter = assets.find(path)
-    return filter.filter(asset_path).strip()
+    def test_derive_output_path(self):
+        filter = self.SingleOutputFilter(output_path='dir/main.out')
+        self.assertEquals(filter.derive_output_path('main.in'), 'dir/main.out')
+        self.assertEquals(filter.derive_output_path('dir/main.in'), 'dir/main.out')
 
 
 class TestSassFilter(AssetfilesTestCase):

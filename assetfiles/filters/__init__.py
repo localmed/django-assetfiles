@@ -7,7 +7,7 @@ from assetfiles import settings
 from assetfiles.filters.base import BaseFilter
 
 
-def find_by_input_path(intput_path):
+def find_by_input_path(input_path):
     """
     Returns the first filter that would accept the given path as input.
 
@@ -17,7 +17,7 @@ def find_by_input_path(intput_path):
         The found filter instance or `None`
     """
     for filter in get_filters():
-        if filter.matches_input(intput_path):
+        if filter.matches_input(input_path):
             return filter
     return None
 
