@@ -3,7 +3,7 @@ from subprocess import Popen, PIPE
 
 from django.utils.encoding import smart_text
 
-from assetfiles.filters.base import BaseFilter, ExtensionMixin
+from assetfiles.filters import BaseFilter, ExtensionMixin
 
 
 class CoffeeScriptFilter(ExtensionMixin, BaseFilter):

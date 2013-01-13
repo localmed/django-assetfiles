@@ -1,8 +1,19 @@
 from django.conf import settings
 
 from assetfiles import assets
-from assetfiles.tests.base import AssetfilesTestCase, Filter1, Filter2
+from assetfiles.filters import BaseFilter, ExtensionMixin
+from assetfiles.tests.base import AssetfilesTestCase
 import assetfiles.settings
+
+
+class Filter1(ExtensionMixin, BaseFilter):
+    input_exts = ('in', 'in1')
+    output_ext = 'out'
+
+
+class Filter2(ExtensionMixin, BaseFilter):
+    input_ext = 'in2'
+    output_ext = 'out2'
 
 
 class TestAssets(AssetfilesTestCase):
@@ -10,8 +21,8 @@ class TestAssets(AssetfilesTestCase):
         super(TestAssets, self).setUp()
         self.old_filters = assetfiles.settings.FILTERS
         assetfiles.settings.FILTERS = (
-            'assetfiles.tests.base.Filter1',
-            'assetfiles.tests.base.Filter2',
+            'assetfiles.tests.test_assets.Filter1',
+            'assetfiles.tests.test_assets.Filter2',
         )
 
     def tearDown(self):

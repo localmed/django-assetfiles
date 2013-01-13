@@ -7,9 +7,13 @@ from django.contrib.staticfiles import finders, storage
 from django.test import TestCase
 from django.utils.functional import empty
 
-from assetfiles import filters
-from assetfiles.filters.base import BaseFilter, ExtensionMixin
+from assetfiles import assets, filters
 import assetfiles.settings
+
+
+def filter(path):
+    asset_path, filter = assets.find(path)
+    return filter.filter(asset_path).strip()
 
 
 class AssetfilesTestCase(TestCase):
@@ -43,26 +47,3 @@ class AssetfilesTestCase(TestCase):
             if content: file.write(content)
 
         return abspath
-
-
-class ReplaceFilter(ExtensionMixin, BaseFilter):
-    input_exts = ('foo', 'baz')
-    output_ext = 'bar'
-
-    def __init__(self, pattern='a', replacement='b'):
-        self.pattern = pattern
-        self.replacement = replacement
-
-    def filter(self, input):
-        with open(input, 'r') as file:
-            return file.read().replace(self.pattern, self.replacement)
-
-
-class Filter1(ExtensionMixin, BaseFilter):
-    input_exts = ('in', 'in1')
-    output_ext = 'out'
-
-
-class Filter2(ExtensionMixin, BaseFilter):
-    input_ext = 'in2'
-    output_ext = 'out2'
