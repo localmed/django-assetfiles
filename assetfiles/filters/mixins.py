@@ -1,30 +1,8 @@
 import re
 
 
-class SingleOutputMixin(object):
-    def __init__(self, output_path):
-        self.output_path = output_path
-
-    def matches_output(self, output_path):
-        return output_path is self.output_path
-
-    def derive_output_path(self, input_path):
-        return self.output_path
-
-
-class SingleInputMixin(object):
-    def __init__(self, input_path):
-        self.input_path = input_path
-
-    def matches_input(self, input_path):
-        return input_path is self.input_path
-
-    def derive_input_paths(self, output_path):
-        return [self.input_path]
-
-
 class GlobInputMixin(object):
-    def __init__(self, input_path_glob):
+    def __init__(self, input_path_glob, **kwargs):
         self.input_path_glob = input_path_glob
 
     def matches_input(self, input_path):
@@ -76,16 +54,17 @@ class ListInputMixin(object):
 
 
 class MultiInputMixin(object):
-    def __init__(self, input_paths):
+    def __init__(self, input_paths=None, *args, **kwargs):
+        super(MultiInputMixin, self).__init__(*args, **kwargs)
         if isinstance(input_paths, str):
             self._multi_input_delegate = GlobInputMixin(input_path_glob=input_paths)
         else:
             self._multi_input_delegate = ListInputMixin(input_paths=input_paths)
 
-    def matches_input(self, input_path):
+    def _matches_input(self, input_path):
         return self._multi_input_delegate.matches_input(input_path)
 
-    def derive_input_paths(self, output_path):
+    def _derive_input_paths(self, output_path):
         return self._multi_input_delegate.derive_input_paths(output_path)
 
 
@@ -104,21 +83,28 @@ class ExtensionMixin(object):
     input_exts = None
     output_ext = None
 
-    def __init__(self):
+    def __init__(self, input_ext=None, input_exts=None, output_ext=None, *args, **kwargs):
+        super(ExtensionMixin, self).__init__(*args, **kwargs)
+        if input_ext:
+            self.input_ext = input_ext
+        if input_exts:
+            self.input_exts = input_exts
+        if output_ext:
+            self.output_ext = output_ext
         if not self.input_exts and self.input_ext:
             self.input_exts = (self.input_ext,)
 
-    def matches_input(self, intput_path):
+    def _matches_input(self, intput_path):
         if self.input_exts:
             return re.search(r'\.({0})$'.format('|'.join(self.input_exts)), intput_path)
         return False
 
-    def matches_output(self, output_path):
+    def _matches_output(self, output_path):
         if self.output_ext:
             return re.search(r'\.{0}$'.format(self.output_ext), output_path)
         return False
 
-    def derive_input_paths(self, output_path):
+    def _derive_input_paths(self, output_path):
         paths = []
         if self.input_exts:
             for ext in self.input_exts:
@@ -127,7 +113,7 @@ class ExtensionMixin(object):
                 paths.append(re.sub(r'\.[^\.]*$', ext, output_path))
         return paths
 
-    def derive_output_path(self, input_path):
+    def _derive_output_path(self, input_path):
         if self.output_ext:
             path = re.sub(r'\.{0}'.format(self.output_ext), '', input_path)
             ext = '.' + self.output_ext

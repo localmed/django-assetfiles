@@ -38,7 +38,8 @@ class TestFilters(AssetfilesTestCase):
 
 
 class ReplaceFilter(BaseFilter):
-    def __init__(self, pattern, replacement):
+    def __init__(self, pattern, replacement, **kwargs):
+        super(ReplaceFilter, self).__init__(**kwargs)
         self.pattern = pattern
         self.replacement = replacement
 
@@ -48,9 +49,34 @@ class ReplaceFilter(BaseFilter):
 
 
 class TestBaseFilter(AssetfilesTestCase):
+    def test_matches_set_input_path(self):
+        filter = BaseFilter(input_path='dir/main.in')
+        self.assertFalse(filter.matches_input('main.in'))
+        self.assertFalse(filter.matches_input('dir/main.out'))
+        self.assertFalse(filter.matches_input('dir/main'))
+        self.assertFalse(filter.matches_input('dir/dir/main.in'))
+        self.assertTrue(filter.matches_input('dir/main.in'))
+
+    def test_derives_set_input_path(self):
+        filter = BaseFilter(input_path='dir/main.in')
+        self.assertEquals(filter.derive_input_paths('dir/main.in'),
+            ['dir/main.in'])
+
+    def test_matches_set_output_path(self):
+        filter = BaseFilter(output_path='dir/main.out')
+        self.assertFalse(filter.matches_output('main.out'))
+        self.assertFalse(filter.matches_output('dir/main.in'))
+        self.assertFalse(filter.matches_output('dir/main'))
+        self.assertFalse(filter.matches_output('dir/dir/main.out'))
+        self.assertTrue(filter.matches_output('dir/main.out'))
+
+    def test_derives_set_output_path(self):
+        filter = BaseFilter(output_path='dir/main.out')
+        self.assertEquals(filter.derive_output_path('main.in'), 'dir/main.out')
+        self.assertEquals(filter.derive_output_path('dir/main.in'), 'dir/main.out')
+
     def test_filters_a_single_input_file(self):
-        filter = ReplaceFilter('Hello', 'World')
-        filter.pattern
+        filter = ReplaceFilter(pattern='Hello', replacement='World')
         path = self.mkfile('main.css', 'Hello')
         result = filter.filter(path)
         self.assertEquals('World', result)

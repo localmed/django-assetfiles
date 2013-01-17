@@ -1,40 +1,14 @@
-from assetfiles.filters import BaseFilter, SingleOutputMixin, SingleInputMixin, MultiInputMixin, ExtensionMixin
+from assetfiles.filters import BaseFilter, MultiInputMixin, ExtensionMixin
 from assetfiles.tests.base import AssetfilesTestCase
 
 
-class TestSingleOutputMixin(AssetfilesTestCase):
-    def test_matches_set_output_path(self):
-        filter = SingleOutputMixin(output_path='dir/main.out')
-        self.assertFalse(filter.matches_output('main.out'))
-        self.assertFalse(filter.matches_output('dir/main.in'))
-        self.assertFalse(filter.matches_output('dir/main'))
-        self.assertFalse(filter.matches_output('dir/dir/main.out'))
-        self.assertTrue(filter.matches_output('dir/main.out'))
-
-    def test_derive_output_path(self):
-        filter = SingleOutputMixin(output_path='dir/main.out')
-        self.assertEquals(filter.derive_output_path('main.in'), 'dir/main.out')
-        self.assertEquals(filter.derive_output_path('dir/main.in'), 'dir/main.out')
-
-
-class TestSingleInputMixin(AssetfilesTestCase):
-    def test_matches_set_input_path(self):
-        filter = SingleInputMixin(input_path='dir/main.in')
-        self.assertFalse(filter.matches_input('main.in'))
-        self.assertFalse(filter.matches_input('dir/main.out'))
-        self.assertFalse(filter.matches_input('dir/main'))
-        self.assertFalse(filter.matches_input('dir/dir/main.in'))
-        self.assertTrue(filter.matches_input('dir/main.in'))
-
-    def test_derive_input_paths(self):
-        filter = SingleInputMixin(input_path='dir/main.in')
-        self.assertEquals(filter.derive_input_paths('dir/main.in'),
-            ['dir/main.in'])
+class MultiInputFilter(MultiInputMixin, BaseFilter):
+    pass
 
 
 class TestMultiInputMixin(AssetfilesTestCase):
     def test_matches_input_set_with_list(self):
-        filter = MultiInputMixin(input_paths=(
+        filter = MultiInputFilter(input_paths=(
             'dir/file1.in',
             'dir/file2.in',
             'dir/file3.in',
@@ -48,7 +22,7 @@ class TestMultiInputMixin(AssetfilesTestCase):
         self.assertTrue(filter.matches_input('dir/file3.in'))
 
     def test_matches_input_set_with_glob(self):
-        filter = MultiInputMixin(input_paths='*.in')
+        filter = MultiInputFilter(input_paths='*.in')
         self.assertTrue(filter.matches_input('file1.in'))
         self.assertFalse(filter.matches_input('file1.out'))
         self.assertFalse(filter.matches_input('dir/file1.out'))
@@ -59,7 +33,7 @@ class TestMultiInputMixin(AssetfilesTestCase):
         self.assertTrue(filter.matches_input('dir/file3.in'))
 
     def test_derives_input_paths_set_with_list(self):
-        filter = MultiInputMixin(input_paths=(
+        filter = MultiInputFilter(input_paths=(
             'dir/file1.in',
             'dir/file2.in',
             'dir/file3.in',
@@ -71,9 +45,9 @@ class TestMultiInputMixin(AssetfilesTestCase):
         ])
 
     def test_derives_input_paths_set_with_glob(self):
-        filter1 = MultiInputMixin(input_paths='*.in')
-        filter2 = MultiInputMixin(input_paths='dir1/*.in')
-        filter3 = MultiInputMixin(input_paths='**/*.in')
+        filter1 = MultiInputFilter(input_paths='*.in')
+        filter2 = MultiInputFilter(input_paths='dir1/*.in')
+        filter3 = MultiInputFilter(input_paths='**/*.in')
         self.mkfile('static/file1.in')
         self.mkfile('static/dir1/file2.in')
         self.mkfile('static/dir1/file3.out')
@@ -103,6 +77,19 @@ class TestMultiInputMixin(AssetfilesTestCase):
             'file10.in',
             'dir4/subdir/file9.in',
         ])
+
+    def test_matches_set_input_path(self):
+        filter = MultiInputFilter(input_path='dir/main.in')
+        self.assertFalse(filter.matches_input('main.in'))
+        self.assertFalse(filter.matches_input('dir/main.out'))
+        self.assertFalse(filter.matches_input('dir/main'))
+        self.assertFalse(filter.matches_input('dir/dir/main.in'))
+        self.assertTrue(filter.matches_input('dir/main.in'))
+
+    def test_derives_set_input_path(self):
+        filter = MultiInputFilter(input_path='dir/main.in')
+        self.assertEquals(filter.derive_input_paths('dir/main.in'),
+            ['dir/main.in'])
 
 
 class ExtensionFilter(ExtensionMixin, BaseFilter):
@@ -163,3 +150,29 @@ class TessExtensionMixin(AssetfilesTestCase):
             filter.derive_output_path('dir/main.bar.foo'))
         self.assertEquals('dir/main.plugin.bar',
             filter.derive_output_path('dir/main.plugin.foo'))
+
+    def test_matches_set_input_path(self):
+        filter = ExtensionFilter(input_path='dir/main.in')
+        self.assertFalse(filter.matches_input('main.in'))
+        self.assertFalse(filter.matches_input('dir/main.out'))
+        self.assertFalse(filter.matches_input('dir/main'))
+        self.assertFalse(filter.matches_input('dir/dir/main.in'))
+        self.assertTrue(filter.matches_input('dir/main.in'))
+
+    def test_derives_set_input_path(self):
+        filter = ExtensionFilter(input_path='dir/main.in')
+        self.assertEquals(filter.derive_input_paths('dir/main.in'),
+            ['dir/main.in'])
+
+    def test_matches_set_output_path(self):
+        filter = ExtensionFilter(output_path='dir/main.out')
+        self.assertFalse(filter.matches_output('main.out'))
+        self.assertFalse(filter.matches_output('dir/main.in'))
+        self.assertFalse(filter.matches_output('dir/main'))
+        self.assertFalse(filter.matches_output('dir/dir/main.out'))
+        self.assertTrue(filter.matches_output('dir/main.out'))
+
+    def test_derives_set_output_path(self):
+        filter = ExtensionFilter(output_path='dir/main.out')
+        self.assertEquals(filter.derive_output_path('main.in'), 'dir/main.out')
+        self.assertEquals(filter.derive_output_path('dir/main.in'), 'dir/main.out')

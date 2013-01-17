@@ -2,14 +2,26 @@ class BaseFilter(object):
     """
     Base class for filters that process files.
     """
+    # input_path = None
+    # output_path = None
 
-    def matches_input(self, intput_path):
+    def __init__(self, input_path=None, output_path=None):
+        self.input_path = input_path
+        self.output_path = output_path
+
+    def matches_input(self, input_path):
         """
         Returns true if the input file should be processed by this filter.
 
         Args:
             input_path: A file path, relative to the static dir.
         """
+        if self.input_path:
+            return input_path is self.input_path
+        else:
+            return self._matches_input(input_path)
+
+    def _matches_input(self, input_path):
         return False
 
     def matches_output(self, output_path):
@@ -19,6 +31,12 @@ class BaseFilter(object):
         Args:
             output_path: A file path, relative to the static dir.
         """
+        if self.output_path:
+            return output_path is self.output_path
+        else:
+            return self._matches_output(output_path)
+
+    def _matches_output(self, input_path):
         return False
 
     def is_filterable(self, output_path):
@@ -41,6 +59,12 @@ class BaseFilter(object):
         Returns
             A list of search paths. Can be empty.
         """
+        if self.input_path:
+            return [self.input_path]
+        else:
+            return self._derive_input_paths(output_path)
+
+    def _derive_input_paths(self, output_path):
         return []
 
     def derive_output_path(self, input_path):
@@ -52,6 +76,12 @@ class BaseFilter(object):
         Returns:
             An path to the output file, relative to the static dir.
         """
+        if self.output_path:
+            return self.output_path
+        else:
+            return self._derive_output_path(input_path)
+
+    def _derive_output_path(self, input_path):
         return None
 
     def filter(self, input_path):

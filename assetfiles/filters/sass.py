@@ -23,7 +23,8 @@ class SassFilter(ExtensionMixin, BaseFilter):
     functions_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), '../scripts/sass_functions.rb'))
 
-    def __init__(self, options=None):
+    def __init__(self, options=None, *args, **kwargs):
+        super(SassFilter, self).__init__(*args, **kwargs)
         if options is None:
             options = {}
         if 'compass' not in options:

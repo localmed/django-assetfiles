@@ -10,7 +10,7 @@ class CoffeeScriptFilter(ExtensionMixin, BaseFilter):
     """
     Filters CoffeeScript files into JS.
     """
-    input_exts = ('coffee',)
+    input_ext = 'coffee'
     output_ext = 'js'
 
     def filter(self, input):
