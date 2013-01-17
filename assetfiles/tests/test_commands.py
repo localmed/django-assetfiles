@@ -25,13 +25,13 @@ class TestFindStatic(AssetfilesTestCase):
     def test_find_file(self):
         out = call_command('findstatic', 'css/main.css', all=False)
         lines = out.readlines()[1:]
-        self.assertEquals(len(lines), 1)
+        self.assertEqual(len(lines), 1)
         self.assertIn('project/static/css/main.css', lines[0])
 
     def test_find_all_files(self):
         out = call_command('findstatic', 'css/main.css')
         lines = out.readlines()[1:]
-        self.assertEquals(len(lines), 3)
+        self.assertEqual(len(lines), 3)
         self.assertIn('project/static/css/main.css', lines[0])
         self.assertIn('app-1/static/css/main.css', lines[1])
         self.assertIn('app-2/static/css/main.css', lines[2])

@@ -15,7 +15,7 @@ class TestBaseFilter(AssetfilesTestCase):
         filter = ReplaceFilter('Hello', 'World')
         path = self.mkfile('main.css', 'Hello')
         result = filter.filter(path)
-        self.assertEquals('World', result)
+        self.assertEqual('World', result)
 
     def test_matches_input_file_by_ext(self):
         filter = ReplaceFilter()
@@ -39,7 +39,7 @@ class TestBaseFilter(AssetfilesTestCase):
     def test_set_single_input_ext(self):
         filter = ReplaceFilter()
         filter.input_ext = 'foo'
-        self.assertEquals(('foo',), filter.input_exts)
+        self.assertEqual(('foo',), filter.input_exts)
 
     def test_matches_output_file_by_ext(self):
         filter = ReplaceFilter()
@@ -58,13 +58,13 @@ class TestBaseFilter(AssetfilesTestCase):
 
     def test_returns_possible_input_paths(self):
         filter = ReplaceFilter()
-        self.assertEquals(set([
+        self.assertEqual(set([
             'dir/main.bar.foo',
             'dir/main.foo',
             'dir/main.bar.baz',
             'dir/main.baz',
         ]), filter.possible_input_paths('dir/main.bar'))
-        self.assertEquals(set([
+        self.assertEqual(set([
             'dir/main.plugin.bar.foo',
             'dir/main.plugin.foo',
             'dir/main.plugin.bar.baz',
@@ -73,9 +73,9 @@ class TestBaseFilter(AssetfilesTestCase):
 
     def test_returns_output_path(self):
         filter = ReplaceFilter()
-        self.assertEquals('dir/main.bar', filter.output_path('dir/main.foo'))
-        self.assertEquals('dir/main.bar', filter.output_path('dir/main.bar.foo'))
-        self.assertEquals('dir/main.plugin.bar', filter.output_path('dir/main.plugin.foo'))
+        self.assertEqual('dir/main.bar', filter.output_path('dir/main.foo'))
+        self.assertEqual('dir/main.bar', filter.output_path('dir/main.bar.foo'))
+        self.assertEqual('dir/main.plugin.bar', filter.output_path('dir/main.plugin.foo'))
 
 
 class TestFilters(AssetfilesTestCase):
@@ -94,12 +94,12 @@ class TestFilters(AssetfilesTestCase):
         self.assertIsInstance(filters.find_by_input_path('main.in'), Filter1)
         self.assertIsInstance(filters.find_by_input_path('main.in1'), Filter1)
         self.assertIsInstance(filters.find_by_input_path('main.in2'), Filter2)
-        self.assertEquals(None, filters.find_by_input_path('main.out'))
+        self.assertEqual(None, filters.find_by_input_path('main.out'))
 
     def test_filter_to_path(self):
         self.assertIsInstance(filters.find_by_output_path('main.out'), Filter1)
         self.assertIsInstance(filters.find_by_output_path('main.out2'), Filter2)
-        self.assertEquals(None, filters.find_by_output_path('main.in'))
+        self.assertEqual(None, filters.find_by_output_path('main.in'))
 
 
 def filter(path):
@@ -112,20 +112,20 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/simple.scss',
             '$c: red; body { color: $c; }')
-        self.assertEquals(filter('css/simple.css'), 'body {\n  color: red; }')
+        self.assertEqual(filter('css/simple.css'), 'body {\n  color: red; }')
 
     def test_processes_app_scss_files(self):
         self.mkfile(
             'app-1/static/css/app.scss',
             '$c: yellow; body { color: $c; }')
-        self.assertEquals(filter('css/app.css'), 'body {\n  color: yellow; }')
+        self.assertEqual(filter('css/app.css'), 'body {\n  color: yellow; }')
 
     def test_processes_scss_files_with_deps(self):
         self.mkfile('static/css/folder/_dep.scss', '$c: black;')
         self.mkfile(
             'static/css/with_deps.scss',
             '@import "folder/dep"; body { color: $c; }')
-        self.assertEquals(
+        self.assertEqual(
             filter('css/with_deps.css'),
             'body {\n  color: black; }')
 
@@ -134,7 +134,7 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/with_app_deps.scss',
             '@import "folder/dep"; body { color: $c; }')
-        self.assertEquals(
+        self.assertEqual(
             filter('css/with_app_deps.css'),
             'body {\n  color: white; }')
 
@@ -142,7 +142,7 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/with_url.scss',
             'body { background: static-url("img/bg.jpg"); }')
-        self.assertEquals(
+        self.assertEqual(
             filter('css/with_url.css'),
             'body {\n  background: url("/static/img/bg.jpg"); }')
 
@@ -162,13 +162,13 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/cache_buster.scss',
             'body { background: image-url("img/bg.jpg", false, true); }')
-        self.assertEquals(
+        self.assertEqual(
             filter('css/image_url.css'),
             'body {\n  background: url("/static/img/bg.jpg"); }')
-        self.assertEquals(
+        self.assertEqual(
             filter('css/only_path.css'),
             'body {\n  background: url("/static/img/bg.jpg"); }')
-        self.assertEquals(
+        self.assertEqual(
             filter('css/cache_buster.css'),
             'body {\n  background: url("/static/img/bg.jpg"); }')
 
@@ -179,10 +179,10 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/only_path.scss',
             '@font-face { src: url(font-url("fonts/font.ttf", true)); }')
-        self.assertEquals(
+        self.assertEqual(
             filter('css/font_url.css'),
             '@font-face {\n  src: url("/static/fonts/font.ttf"); }')
-        self.assertEquals(
+        self.assertEqual(
             filter('css/only_path.css'),
             '@font-face {\n  src: url("/static/fonts/font.ttf"); }')
 

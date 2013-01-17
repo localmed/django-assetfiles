@@ -44,3 +44,5 @@ STATICFILES_FINDERS = (
 TEMPLATE_DIRS = (
     path.join(PROJECT_ROOT, 'templates'),
 )
+
+SECRET_KEY = 'ev2pj15ucf^d84l216^@-mv)pl4$^@9g4)9_)7xi@0j0xop94f'
