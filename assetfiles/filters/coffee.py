@@ -1,6 +1,8 @@
 import pipes
 from subprocess import Popen, PIPE
 
+from django.utils.encoding import smart_text
+
 from assetfiles.filters.base import BaseFilter, ExtFilter
 
 
@@ -16,7 +18,7 @@ class CoffeeScriptFilter(ExtFilter, BaseFilter):
             pipes.quote(input))
 
         process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = process.communicate()
+        stdout, stderr = [smart_text(s) for s in process.communicate()]
 
         if process.returncode:
             raise CoffeeScriptFilterError(stderr)

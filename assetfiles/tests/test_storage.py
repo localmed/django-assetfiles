@@ -1,5 +1,6 @@
+from __future__ import unicode_literals
+
 from django.test import TestCase
-from django.utils import six
 
 from assetfiles.storage import TempFilesStorage
 
@@ -14,7 +15,7 @@ class TestTempFilesStorage(TestCase):
         storage = TempFilesStorage()
         storage.save('path/to/file.txt', 'Hello World!')
         file = storage.open('path/to/file.txt')
-        self.assertEqual('Hello World!', ''.join(file.chunks()))
+        self.assertEqual(b'Hello World!', b''.join(file.chunks()))
 
     def test_deletes_storage(self):
         storage = TempFilesStorage()

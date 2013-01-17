@@ -4,6 +4,7 @@ from subprocess import Popen, PIPE
 
 from django.conf import settings
 from django.contrib.staticfiles.finders import find
+from django.utils.encoding import smart_text
 
 from assetfiles.filters.base import BaseFilter, ExtFilter
 import assetfiles.settings
@@ -38,7 +39,7 @@ class SassFilter(ExtFilter, BaseFilter):
         env.update({'DJANGO_STATIC_URL': settings.STATIC_URL})
 
         process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, env=env)
-        stdout, stderr = process.communicate()
+        stdout, stderr = [smart_text(s) for s in process.communicate()]
 
         if process.returncode:
             raise SassFilterError(stderr)

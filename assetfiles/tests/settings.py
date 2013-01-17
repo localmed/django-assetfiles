@@ -46,3 +46,4 @@ TEMPLATE_DIRS = (
 )
 
 SECRET_KEY = 'ev2pj15ucf^d84l216^@-mv)pl4$^@9g4)9_)7xi@0j0xop94f'
+DEFAULT_CHARSET = 'utf-8'

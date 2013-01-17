@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.files.base import File, ContentFile
 from django.core.files.storage import Storage
 from django.utils.encoding import filepath_to_uri
+from django.utils import six
 
 
 class TempFilesStorage(Storage):
@@ -17,8 +18,8 @@ class TempFilesStorage(Storage):
 
     def _open(self, name, mode='rb'):
         file = self.files[name]
-        if isinstance(file, str):
-            file = ContentFile(file, name)
+        if isinstance(file, six.string_types):
+            file = ContentFile(six.b(file), name)
         elif not isinstance(file, File):
             file = File(file)
         return file

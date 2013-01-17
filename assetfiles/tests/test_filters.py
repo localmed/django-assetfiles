@@ -9,6 +9,15 @@ from assetfiles.filters.sass import SassFilterError
 from assetfiles.tests.base import (AssetfilesTestCase,
                                    ReplaceFilter, Filter1, Filter2)
 
+def assertRaisesRegex(self, *args, **kwargs):
+    '''
+    Python 2/3 compatibility not offered by Django 1.4's version of six.
+    '''
+    method = 'assertRaisesRegex'
+    if not hasattr(self, method):
+        method = 'assertRaisesRegexp'
+    return getattr(self, method)(*args, **kwargs)
+
 
 class TestBaseFilter(AssetfilesTestCase):
     def test_filters_a_single_input_file(self):
@@ -187,7 +196,7 @@ class TestSassFilter(AssetfilesTestCase):
             '@font-face {\n  src: url("/static/fonts/font.ttf"); }')
 
     def test_raises_syntax_error(self):
-        with self.assertRaisesRegexp(
+        with assertRaisesRegex(self,
                 SassFilterError,
                 r'.*?Syntax error.*?\n.*?line 5.*?static/css/syntax_error\.scss'):
             self.mkfile('static/css/syntax_error.scss', '\n\n\n\nbody {')
@@ -200,7 +209,7 @@ class TestCoffeeScriptFilter(AssetfilesTestCase):
         self.assertIn('foo: "1" + 2 + "3"', filter('js/simple.js'))
 
     def test_raises_syntax_error(self):
-        with self.assertRaisesRegexp(
+        with assertRaisesRegex(self,
                 CoffeeScriptFilterError,
                 r'.*?SyntaxError.*?static/js/simple\.coffee.*?line 5'):
             self.mkfile('static/js/simple.coffee', '\n\n\n\na = foo: "1#{2}3')
