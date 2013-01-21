@@ -1,5 +1,7 @@
 import re
 
+from django.utils import six
+
 
 class GlobInputMixin(object):
     def __init__(self, input_path_glob, **kwargs):
@@ -30,7 +32,7 @@ class GlobInputMixin(object):
 
     def _get_staticfiles_roots(self):
         for storages in self._get_staticfiles_storages():
-            for root, storage in storages.iteritems():
+            for root, storage in six.iteritems(storages):
                 if hasattr(storage, 'location'):
                     yield storage.location
 

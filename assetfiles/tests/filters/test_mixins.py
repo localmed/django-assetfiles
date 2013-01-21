@@ -1,5 +1,7 @@
+import unittest
+
 from assetfiles.filters import BaseFilter, MultiInputMixin, ExtensionMixin
-from assetfiles.tests.base import AssetfilesTestCase
+from assetfiles.tests.base import is_glob2_available, AssetfilesTestCase
 
 
 class MultiInputFilter(MultiInputMixin, BaseFilter):
@@ -7,6 +9,18 @@ class MultiInputFilter(MultiInputMixin, BaseFilter):
 
 
 class TestMultiInputMixin(AssetfilesTestCase):
+    def mk_project_files(self):
+        self.mkfile('static/file1.in')
+        self.mkfile('static/dir1/file2.in')
+        self.mkfile('static/dir1/file3.out')
+        self.mkfile('static/dir2/file4.in')
+        self.mkfile('app-1/static/file5.out')
+        self.mkfile('app-1/static/file6.in')
+        self.mkfile('app-1/static/dir1/file7.in')
+        self.mkfile('app-1/static/dir3/file8.in')
+        self.mkfile('app-2/static/file10.in')
+        self.mkfile('app-2/static/dir4/subdir/file9.in')
+
     def test_matches_input_set_with_list(self):
         filter = MultiInputFilter(input_paths=(
             'dir/file1.in',
@@ -47,17 +61,7 @@ class TestMultiInputMixin(AssetfilesTestCase):
     def test_derives_input_paths_set_with_glob(self):
         filter1 = MultiInputFilter(input_paths='*.in')
         filter2 = MultiInputFilter(input_paths='dir1/*.in')
-        filter3 = MultiInputFilter(input_paths='**/*.in')
-        self.mkfile('static/file1.in')
-        self.mkfile('static/dir1/file2.in')
-        self.mkfile('static/dir1/file3.out')
-        self.mkfile('static/dir2/file4.in')
-        self.mkfile('app-1/static/file5.out')
-        self.mkfile('app-1/static/file6.in')
-        self.mkfile('app-1/static/dir1/file7.in')
-        self.mkfile('app-1/static/dir3/file8.in')
-        self.mkfile('app-2/static/file10.in')
-        self.mkfile('app-2/static/dir4/subdir/file9.in')
+        self.mk_project_files()
         self.assertEquals(filter1.derive_input_paths('file.out'), [
             'file1.in',
             'file6.in',
@@ -67,7 +71,12 @@ class TestMultiInputMixin(AssetfilesTestCase):
             'dir1/file2.in',
             'dir1/file7.in',
         ])
-        self.assertEquals(filter3.derive_input_paths('file.out'), [
+
+    @unittest.skipUnless(is_glob2_available(), 'glob2 is not Python 3 compatible')
+    def test_derives_input_paths_set_with_glob2(self):
+        filter = MultiInputFilter(input_paths='**/*.in')
+        self.mk_project_files()
+        self.assertEquals(filter.derive_input_paths('file.out'), [
             'file1.in',
             'dir1/file2.in',
             'dir2/file4.in',

@@ -16,6 +16,14 @@ def filter(path):
     return filter.filter(asset_path).strip()
 
 
+def is_glob2_available():
+    try:
+        import glob2
+        return True
+    except ImportError:
+        return False
+
+
 class AssetfilesTestCase(TestCase):
     def setUp(self):
         # Clear the cached staticfiles_storage out, this is because when it first
