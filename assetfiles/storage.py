@@ -17,11 +17,15 @@ class TempFilesStorage(Storage):
         self.files = {}
 
     def _open(self, name, mode='rb'):
+        if not self.exists(name):
+            raise IOError('No such file in TempFilesStorage: {0}'.format(name))
         file = self.files[name]
+
         if isinstance(file, six.string_types):
             file = ContentFile(six.b(file), name)
         elif not isinstance(file, File):
             file = File(file)
+
         return file
 
     def _save(self, name, content):

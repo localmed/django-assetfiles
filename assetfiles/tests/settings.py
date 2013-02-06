@@ -34,6 +34,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     path.join(PROJECT_ROOT, 'static'),
+    ('prefix', path.join(PROJECT_ROOT, 'static-prefix'))
 )
 
 STATICFILES_FINDERS = (
