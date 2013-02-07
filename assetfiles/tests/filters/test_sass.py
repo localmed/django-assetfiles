@@ -7,7 +7,7 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/simple.scss',
             '$c: red; body { color: $c; }')
-        self.assertEquals(filter('css/simple.css'), 'body {\n  color: red; }')
+        self.assertEquals(filter('css/simple.css'), u'body {\n  color: red; }')
 
     def test_processes_app_scss_files(self):
         self.mkfile(
