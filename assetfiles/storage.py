@@ -22,7 +22,7 @@ class TempFilesStorage(Storage):
         file = self.files[name]
 
         if isinstance(file, six.string_types):
-            file = ContentFile(six.b(file), name)
+            file = ContentFile(file, name)
         elif not isinstance(file, File):
             file = File(file)
 

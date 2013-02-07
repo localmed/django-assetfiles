@@ -15,7 +15,7 @@ class TestTempFilesStorage(TestCase):
         storage = TempFilesStorage()
         storage.save('path/to/file.txt', 'Hello World!')
         file = storage.open('path/to/file.txt')
-        self.assertEqual(b'Hello World!', b''.join(file.chunks()))
+        self.assertEqual('Hello World!', ''.join(file.chunks()))
 
     def test_deletes_storage(self):
         storage = TempFilesStorage()
