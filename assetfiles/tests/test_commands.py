@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+import codecs
 import os
 
 from django.conf import settings
@@ -77,9 +81,10 @@ class TestCollectStatic(AssetfilesTestCase):
         static_path = os.path.join(settings.STATIC_ROOT, path)
 
         self.assertStaticFileExists(path)
-        with open(static_path, 'r') as file:
-            self.assertIn(text, file.read(),
-                "'{0}' not in file '{1}'".format(text, path))
+        with codecs.open(static_path, 'r', encoding='utf-8') as file:
+            file_data = file.read()
+            self.assertIn(text, file_data,
+                "'{0}' not in file '{1}'.".format(text, path))
 
     def test_copies_static_files(self):
         self.mkfile('static/css/static.css',
@@ -87,6 +92,13 @@ class TestCollectStatic(AssetfilesTestCase):
         self.collectstatic()
         self.assertStaticFileContains('css/static.css',
             'body { color: red; }')
+
+    def test_copies_unicode_static_files(self):
+        self.mkfile('static/css/static.css',
+            'a::before { content: "é"; }')
+        self.collectstatic()
+        self.assertStaticFileContains('css/static.css',
+            'a::before { content: "é"; }')
 
     def test_copies_static_files_with_prefix(self):
         self.mkfile('static-prefix/css/static.css',
@@ -103,7 +115,7 @@ class TestCollectStatic(AssetfilesTestCase):
         self.assertStaticFileContains('prefix/css/complex.css',
             'body { color: red; }')
 
-    def test_returns_app_static_files(self):
+    def test_copies_app_static_files(self):
         self.mkfile('app-1/static/css/app_static.css',
             'body { color: blue; }')
         self.collectstatic()
@@ -116,6 +128,16 @@ class TestCollectStatic(AssetfilesTestCase):
         self.collectstatic()
         self.assertStaticFileContains('css/simple.css',
             'body {\n  color: red; }')
+
+    def test_processes_unicode_asset_files(self):
+        self.mkfile('static/css/simple.scss',
+            '$content: "é"; a::before { content: $content; }')
+        self.mkfile('static/js/simple.coffee', 'a = foo: "é#{2}3"')
+        self.collectstatic()
+        self.assertStaticFileContains('css/simple.css', '@charset "UTF-8";')
+        self.assertStaticFileContains('css/simple.css',
+            'a::before {\n  content: "é"; }')
+        self.assertStaticFileContains('js/simple.js', 'foo: "é" + 2 + "3"')
 
     def test_processes_scss_files_with_prefix(self):
         self.mkfile('static-prefix/css/simple.scss',

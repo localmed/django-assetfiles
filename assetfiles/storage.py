@@ -21,7 +21,7 @@ class TempFilesStorage(Storage):
             raise IOError('No such file in TempFilesStorage: {0}'.format(name))
         file = self.files[name]
 
-        if isinstance(file, six.string_types):
+        if isinstance(file, six.string_types) or isinstance(file, six.binary_type):
             file = ContentFile(file, name)
         elif not isinstance(file, File):
             file = File(file)

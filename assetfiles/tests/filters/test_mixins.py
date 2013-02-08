@@ -52,7 +52,7 @@ class TestMultiInputMixin(AssetfilesTestCase):
             'dir/file2.in',
             'dir/file3.in',
         ))
-        self.assertEquals(filter.derive_input_paths('dir/file1.out'), [
+        self.assertEqual(filter.derive_input_paths('dir/file1.out'), [
             'dir/file1.in',
             'dir/file2.in',
             'dir/file3.in',
@@ -62,12 +62,12 @@ class TestMultiInputMixin(AssetfilesTestCase):
         filter1 = MultiInputFilter(input_paths='*.in')
         filter2 = MultiInputFilter(input_paths='dir1/*.in')
         self.mk_project_files()
-        self.assertEquals(filter1.derive_input_paths('file.out'), [
+        self.assertEqual(filter1.derive_input_paths('file.out'), [
             'file1.in',
             'file6.in',
             'file10.in',
         ])
-        self.assertEquals(filter2.derive_input_paths('file.out'), [
+        self.assertEqual(filter2.derive_input_paths('file.out'), [
             'dir1/file2.in',
             'dir1/file7.in',
         ])
@@ -76,7 +76,7 @@ class TestMultiInputMixin(AssetfilesTestCase):
     def test_derives_input_paths_set_with_glob2(self):
         filter = MultiInputFilter(input_paths='**/*.in')
         self.mk_project_files()
-        self.assertEquals(filter.derive_input_paths('file.out'), [
+        self.assertEqual(filter.derive_input_paths('file.out'), [
             'file1.in',
             'dir1/file2.in',
             'dir2/file4.in',
@@ -97,7 +97,7 @@ class TestMultiInputMixin(AssetfilesTestCase):
 
     def test_derives_set_input_path(self):
         filter = MultiInputFilter(input_path='dir/main.in')
-        self.assertEquals(filter.derive_input_paths('dir/main.in'),
+        self.assertEqual(filter.derive_input_paths('dir/main.in'),
             ['dir/main.in'])
 
 
@@ -123,7 +123,7 @@ class TessExtensionMixin(AssetfilesTestCase):
     def test_set_single_input_ext(self):
         filter = ExtensionFilter()
         filter.input_ext = 'foo'
-        self.assertEquals(('foo',), filter.input_exts)
+        self.assertEqual(('foo',), filter.input_exts)
 
     def test_matches_output_file_by_ext(self):
         filter = ExtensionFilter()
@@ -138,13 +138,13 @@ class TessExtensionMixin(AssetfilesTestCase):
 
     def test_derive_input_paths(self):
         filter = ExtensionFilter()
-        self.assertEquals([
+        self.assertEqual([
             'dir/main.bar.foo',
             'dir/main.foo',
             'dir/main.bar.baz',
             'dir/main.baz',
         ], filter.derive_input_paths('dir/main.bar'))
-        self.assertEquals([
+        self.assertEqual([
             'dir/main.plugin.bar.foo',
             'dir/main.plugin.foo',
             'dir/main.plugin.bar.baz',
@@ -153,11 +153,11 @@ class TessExtensionMixin(AssetfilesTestCase):
 
     def test_derive_output_path(self):
         filter = ExtensionFilter()
-        self.assertEquals('dir/main.bar',
+        self.assertEqual('dir/main.bar',
             filter.derive_output_path('dir/main.foo'))
-        self.assertEquals('dir/main.bar',
+        self.assertEqual('dir/main.bar',
             filter.derive_output_path('dir/main.bar.foo'))
-        self.assertEquals('dir/main.plugin.bar',
+        self.assertEqual('dir/main.plugin.bar',
             filter.derive_output_path('dir/main.plugin.foo'))
 
     def test_matches_set_input_path(self):
@@ -170,7 +170,7 @@ class TessExtensionMixin(AssetfilesTestCase):
 
     def test_derives_set_input_path(self):
         filter = ExtensionFilter(input_path='dir/main.in')
-        self.assertEquals(filter.derive_input_paths('dir/main.in'),
+        self.assertEqual(filter.derive_input_paths('dir/main.in'),
             ['dir/main.in'])
 
     def test_matches_set_output_path(self):
@@ -183,5 +183,5 @@ class TessExtensionMixin(AssetfilesTestCase):
 
     def test_derives_set_output_path(self):
         filter = ExtensionFilter(output_path='dir/main.out')
-        self.assertEquals(filter.derive_output_path('main.in'), 'dir/main.out')
-        self.assertEquals(filter.derive_output_path('dir/main.in'), 'dir/main.out')
+        self.assertEqual(filter.derive_output_path('main.in'), 'dir/main.out')
+        self.assertEqual(filter.derive_output_path('dir/main.in'), 'dir/main.out')

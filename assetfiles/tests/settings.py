@@ -1,6 +1,7 @@
 from os import path
 import shutil
 
+
 TESTS_ROOT = path.abspath(path.dirname(__file__))
 PROJECT_ROOT = path.join(TESTS_ROOT, 'project')
 

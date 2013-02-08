@@ -83,8 +83,6 @@ class Command(collectstatic.Command):
             content = filter.filter(source_path)
             source_storage = self.temp_storage
             source_storage.save(source_path, content)
-            self.log(content, level=0)
-            self.log(type(content), level=0)
 
         return (target_path, source_storage)
 

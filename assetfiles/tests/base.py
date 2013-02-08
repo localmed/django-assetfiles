@@ -5,6 +5,7 @@ import tempfile
 from django.conf import settings
 from django.contrib.staticfiles import finders, storage
 from django.test import TestCase
+from django.utils import six
 from django.utils.functional import empty
 
 from assetfiles import assets, filters
@@ -14,6 +15,11 @@ import assetfiles.settings
 def filter(path):
     asset_path, filter = assets.find(path)
     return filter.filter(asset_path).strip()
+
+
+def assertRaisesRegex(self, *args, **kwargs):
+    attr = 'assertRaisesRegex' if six.PY3 else 'assertRaisesRegexp'
+    return getattr(self, attr)(*args, **kwargs)
 
 
 def is_glob2_available():
@@ -49,9 +55,13 @@ class AssetfilesTestCase(TestCase):
         abspath = os.path.join(self.root, path)
         dirname = os.path.dirname(abspath)
 
-        if not os.path.isdir(dirname): os.makedirs(dirname)
+        if not os.path.isdir(dirname):
+            os.makedirs(dirname)
 
         with open(abspath, 'w') as file:
-            if content: file.write(content)
+            if content:
+                if not six.PY3:
+                    content = content.encode('utf-8')
+                file.write(content)
 
         return abspath

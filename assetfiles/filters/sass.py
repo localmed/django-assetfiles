@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import os
 import pipes
 from subprocess import Popen, PIPE
@@ -40,7 +42,7 @@ class SassFilter(ExtensionMixin, BaseFilter):
         env.update({'DJANGO_STATIC_URL': settings.STATIC_URL})
 
         process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, env=env)
-        stdout, stderr = [smart_text(s) for s in process.communicate()]
+        stdout, stderr = process.communicate()
 
         if process.returncode:
             raise SassFilterError(stderr)
@@ -88,7 +90,8 @@ def get_static_sass_dirs(dirs=None):
     Returns:
         A list of directory paths containing Sass files.
     """
-    if not dirs: dirs = assetfiles.settings.SASS_DIRS
+    if not dirs:
+        dirs = assetfiles.settings.SASS_DIRS
 
     load_paths = []
     for dir in dirs:
@@ -110,6 +113,6 @@ class SassFilterError(Exception):
     for Django.
     """
     def __init__(self, stacktrace):
-        stacktrace = stacktrace.strip().split('\n')[:-1]
-        message = '\n'.join(stacktrace)
+        stacktrace = stacktrace.strip().split(b'\n')[:-1]
+        message = b'\n'.join(stacktrace)
         super(SassFilterError, self).__init__(message)

@@ -29,12 +29,12 @@ class TestFilters(AssetfilesTestCase):
         self.assertIsInstance(filters.find_by_input_path('main.in'), Filter1)
         self.assertIsInstance(filters.find_by_input_path('main.in1'), Filter1)
         self.assertIsInstance(filters.find_by_input_path('main.in2'), Filter2)
-        self.assertEquals(None, filters.find_by_input_path('main.out'))
+        self.assertEqual(None, filters.find_by_input_path('main.out'))
 
     def test_find_by_output_path(self):
         self.assertIsInstance(filters.find_by_output_path('main.out'), Filter1)
         self.assertIsInstance(filters.find_by_output_path('main.out2'), Filter2)
-        self.assertEquals(None, filters.find_by_output_path('main.in'))
+        self.assertEqual(None, filters.find_by_output_path('main.in'))
 
 
 class ReplaceFilter(BaseFilter):
@@ -59,7 +59,7 @@ class TestBaseFilter(AssetfilesTestCase):
 
     def test_derives_set_input_path(self):
         filter = BaseFilter(input_path='dir/main.in')
-        self.assertEquals(filter.derive_input_paths('dir/main.in'),
+        self.assertEqual(filter.derive_input_paths('dir/main.in'),
             ['dir/main.in'])
 
     def test_matches_set_output_path(self):
@@ -72,11 +72,11 @@ class TestBaseFilter(AssetfilesTestCase):
 
     def test_derives_set_output_path(self):
         filter = BaseFilter(output_path='dir/main.out')
-        self.assertEquals(filter.derive_output_path('main.in'), 'dir/main.out')
-        self.assertEquals(filter.derive_output_path('dir/main.in'), 'dir/main.out')
+        self.assertEqual(filter.derive_output_path('main.in'), 'dir/main.out')
+        self.assertEqual(filter.derive_output_path('dir/main.in'), 'dir/main.out')
 
     def test_filters_a_single_input_file(self):
         filter = ReplaceFilter(pattern='Hello', replacement='World')
         path = self.mkfile('main.css', 'Hello')
         result = filter.filter(path)
-        self.assertEquals('World', result)
+        self.assertEqual('World', result)

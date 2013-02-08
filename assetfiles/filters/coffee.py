@@ -18,7 +18,7 @@ class CoffeeScriptFilter(ExtensionMixin, BaseFilter):
             pipes.quote(input))
 
         process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = [smart_text(s) for s in process.communicate()]
+        stdout, stderr = process.communicate()
 
         if process.returncode:
             raise CoffeeScriptFilterError(stderr)
