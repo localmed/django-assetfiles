@@ -1,12 +1,24 @@
 from __future__ import unicode_literals
 
+import os
 import re
 
+from assetfiles import settings
 from assetfiles.filters.sass import SassFilterError
 from assetfiles.tests.base import assertRaisesRegex, AssetfilesTestCase, filter
 
 
 class TestSassFilter(AssetfilesTestCase):
+    def setUp(self):
+        super(TestSassFilter, self).setUp()
+        self.original_sass_options = settings.SASS_OPTIONS
+        self.original_compass_options = settings.COMPASS_OPTIONS
+
+    def tearDown(self):
+        super(TestSassFilter, self).tearDown()
+        settings.SASS_OPTIONS = self.original_sass_options
+        settings.COMPASS_OPTIONS = self.original_compass_options
+
     def test_processes_scss_files(self):
         self.mkfile(
             'static/css/simple.scss',
@@ -44,6 +56,19 @@ class TestSassFilter(AssetfilesTestCase):
         self.assertEqual(
             filter('css/with_url.css'),
             b'body {\n  background: url("/static/img/bg.jpg"); }')
+
+    def test_uses_sass_options(self):
+        settings.SASS_OPTIONS = {
+            'load_paths': [os.path.join(self.root, 'additional/load/path')],
+            'style': 'compressed'
+        }
+        self.mkfile('additional/load/path/folder/_dep.scss', '$c: white;')
+        self.mkfile(
+            'static/css/with_load_path_deps.scss',
+            '@import "folder/dep"; body { color: $c; }')
+        self.assertEqual(
+            filter('css/with_load_path_deps.css'),
+            b'body{color:#fff}')
 
     def test_integrates_with_compass(self):
         self.mkfile(

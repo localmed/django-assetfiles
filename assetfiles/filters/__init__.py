@@ -5,7 +5,8 @@ from django.utils.importlib import import_module
 
 from assetfiles import settings
 from assetfiles.filters.base import BaseFilter
-from assetfiles.filters.mixins import MultiInputMixin, ExtensionMixin
+from assetfiles.filters.mixins import (CommandMixin, ExtensionMixin,
+                                       MultiInputMixin)
 
 
 def find_by_input_path(input_path):
