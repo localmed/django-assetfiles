@@ -17,26 +17,48 @@ class SassFilter(ExtensionMixin, BaseFilter):
     Filters Sass files into CSS.
 
     Attributes:
-        functions_path: A path to the Sass extension functions for Django
-            integration.
+        sass_path: The full path to the Sass command. This defaults to a
+            customized binstub that allows for better Bundler integration.
+        functions_path: The full path to the Sass extension functions for
+            Django integration. Set to None or False to bypass adding
+            these functions.
     """
     input_exts = ('sass', 'scss')
     output_ext = 'css'
-    functions_path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '../scripts/sass_functions.rb'))
+    scripts_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '../scripts'))
+    sass_path = os.path.join(scripts_path, 'sass')
+    functions_path = os.path.join(scripts_path, 'sass_functions.rb')
 
     def __init__(self, options=None, *args, **kwargs):
         super(SassFilter, self).__init__(*args, **kwargs)
         if options is None:
             options = {}
+
+        if 'functions_path' in options:
+            self.functions_path = options['functions_path']
+        if 'sass_path' in options:
+            self.sass_path = options['sass_path']
         if 'compass' not in options:
             options['compass'] = self._detect_compass()
+        if 'require' not in options:
+            options['require'] = []
+        if 'load_paths' not in options:
+            options['load_paths'] = []
+
+        if self.functions_path:
+            options['require'].append(self.functions_path)
+        if sass_load_paths:
+            options['load_paths'] = sass_load_paths + options['load_paths']
+
         self.options = options
 
     def filter(self, input):
-        command = 'sass {0} {1}'.format(
-            ' '.join(self._build_args()),
-            pipes.quote(input))
+        command = '{command} {args} {input}'.format(
+            command=self.sass_path,
+            args=' '.join(self._build_args()),
+            input=pipes.quote(input),
+        )
 
         env = dict(os.environ)
         env.update({'DJANGO_STATIC_URL': settings.STATIC_URL})
@@ -63,12 +85,10 @@ class SassFilter(ExtensionMixin, BaseFilter):
         args = []
         if self.options['compass']:
             args.append('--compass')
-        if self.functions_path is not None:
-            args.append(
-                '--require {0}'.format(pipes.quote(self.functions_path)))
-        if sass_load_paths:
-            for path in sass_load_paths:
-                args.append('--load-path {0}'.format(pipes.quote(path)))
+        for require in self.options['require']:
+            args.append('--require {}'.format(pipes.quote(require)))
+        for path in self.options['load_paths']:
+            args.append('--load-path {}'.format(pipes.quote(path)))
         return args
 
     def _detect_compass(self):
