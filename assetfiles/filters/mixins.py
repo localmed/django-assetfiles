@@ -1,6 +1,47 @@
+import os
+import pipes
 import re
+from subprocess import Popen, PIPE
 
 from django.utils import six
+
+from assetfiles.exceptions import FilterError
+
+
+class CommandMixin(object):
+    def run_command(self, command, extra_env=None, exception_type=None):
+        if not exception_type:
+            exception_type = FilterError
+
+        env = dict(os.environ)
+        if extra_env:
+            env.update(extra_env)
+
+        process = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, env=env)
+        stdout, stderr = process.communicate()
+
+        if process.returncode:
+            raise exception_type(stderr)
+        else:
+            return stdout
+
+    def format_option_array(self, name, values):
+        if values:
+            return [self.format_option(name, value) for value in values]
+        else:
+            return []
+
+    def format_option(self, name, value):
+        return '{name} {value}'.format(
+            name=self.format_option_name(name),
+            value=self.format_option_value(value),
+        )
+
+    def format_option_name(self, name):
+        return '--{name}'.format(name=name.replace('_', '-'))
+
+    def format_option_value(self, value):
+        return pipes.quote(value) if value else ''
 
 
 class GlobInputMixin(object):
