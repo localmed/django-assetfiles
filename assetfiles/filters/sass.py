@@ -21,12 +21,14 @@ class SassFilter(ExtensionMixin, CommandMixin, BaseFilter):
             Django integration. Set to None or False to bypass adding
             these functions.
     """
+    SCRIPTS_PATH = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '../scripts'))
+
     input_exts = ('sass', 'scss')
     output_ext = 'css'
-    scripts_path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '../scripts'))
-    sass_path = os.path.join(scripts_path, 'sass')
-    functions_path = os.path.join(scripts_path, 'sass_functions.rb')
+    sass_path = 'sass'
+    sass_env_path = os.path.join(SCRIPTS_PATH, 'sass_env.rb')
+    sass_functions_path = os.path.join(SCRIPTS_PATH, 'sass_functions.rb')
 
     def __init__(self, options=None, *args, **kwargs):
         super(SassFilter, self).__init__(*args, **kwargs)
@@ -35,13 +37,17 @@ class SassFilter(ExtensionMixin, CommandMixin, BaseFilter):
 
         sass_options = assetfiles.settings.SASS_OPTIONS
 
-        self.functions_path = options.get(
-            'functions_path',
-            sass_options.get('functions_path', self.functions_path)
-        )
         self.sass_path = options.get(
             'sass_path',
             sass_options.get('sass_path', self.sass_path)
+        )
+        self.sass_env_path = options.get(
+            'sass_env_path',
+            sass_options.get('sass_env_path', self.sass_env_path)
+        )
+        self.sass_functions_path = options.get(
+            'sass_functions_path',
+            sass_options.get('sass_functions_path', self.sass_functions_path)
         )
         options['compass'] = options.get(
             'compass',
@@ -57,8 +63,10 @@ class SassFilter(ExtensionMixin, CommandMixin, BaseFilter):
             sass_options.get('require', []) +
             options.get('require', [])
         )
-        if self.functions_path:
-            options['require'].append(self.functions_path)
+        if self.sass_functions_path:
+            options['require'].insert(0, self.sass_functions_path)
+        if self.sass_env_path:
+            options['require'].insert(0, self.sass_env_path)
 
         options['load_paths'] = (
             sass_load_paths +

@@ -10,7 +10,7 @@ from django.core import management
 from django.core.management.base import CommandError
 from django.utils import six
 
-from assetfiles.tests.base import AssetfilesTestCase
+from assetfiles.tests.base import is_at_least_django_15, AssetfilesTestCase
 
 
 def call_command(*args, **kwargs):
@@ -198,6 +198,6 @@ class TestCollectStatic(AssetfilesTestCase):
             'body {\n  color: red; }')
 
     def test_does_not_allow_symlinking(self):
-        error = CommandError if six.PY3 else SystemExit
+        error = CommandError if is_at_least_django_15() else SystemExit
         with self.assertRaises(error):
             self.collectstatic(link=True)
