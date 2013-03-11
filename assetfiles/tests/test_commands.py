@@ -134,7 +134,6 @@ class TestCollectStatic(AssetfilesTestCase):
             '$content: "é"; a::before { content: $content; }')
         self.mkfile('static/js/simple.coffee', 'a = foo: "é#{2}3"')
         self.collectstatic()
-        self.assertStaticFileContains('css/simple.css', '@charset "UTF-8";')
         self.assertStaticFileContains('css/simple.css',
             'a::before {\n  content: "é"; }')
         self.assertStaticFileContains('js/simple.js', 'foo: "é" + 2 + "3"')

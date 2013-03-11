@@ -66,7 +66,6 @@ class TestServe(AssetfilesTestCase):
             '$c: "é"; a::before { content: $c; }')
         self.mkfile('static/js/simple.coffee', 'a = foo: "é#{2}3"')
         response = self.client.get('/static/css/simple.css')
-        self.assertContains(response, '@charset "UTF-8";')
         self.assertContains(response, 'a::before {\n  content: "é"; }')
         response = self.client.get('/static/js/simple.js')
         self.assertContains(response, 'foo: "é" + 2 + "3"')
