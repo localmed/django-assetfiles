@@ -12,12 +12,10 @@ class TestSassFilter(AssetfilesTestCase):
     def setUp(self):
         super(TestSassFilter, self).setUp()
         self.original_sass_options = settings.SASS_OPTIONS
-        self.original_compass_options = settings.COMPASS_OPTIONS
 
     def tearDown(self):
         super(TestSassFilter, self).tearDown()
         settings.SASS_OPTIONS = self.original_sass_options
-        settings.COMPASS_OPTIONS = self.original_compass_options
 
     def test_processes_scss_files(self):
         self.mkfile(
