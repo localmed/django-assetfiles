@@ -1,11 +1,15 @@
 from __future__ import unicode_literals
 
+from nose.tools import *
+
 from assetfiles import settings
 from assetfiles.filters.coffee import CoffeeScriptFilterError
-from assetfiles.tests.base import assertRaisesRegex, AssetfilesTestCase, filter
+
+from tests.base import assert_raises_regex, AssetfilesTestCase, filter
 
 
 class TestCoffeeScriptFilter(AssetfilesTestCase):
+
     def setUp(self):
         super(TestCoffeeScriptFilter, self).setUp()
         self.original_coffee_options = settings.COFFEE_SCRIPT_OPTIONS
@@ -16,15 +20,15 @@ class TestCoffeeScriptFilter(AssetfilesTestCase):
 
     def test_processes_coffee_files(self):
         self.mkfile('static/js/simple.coffee', 'a = foo: "1#{2}3"')
-        self.assertIn(b'foo: "1" + 2 + "3"', filter('js/simple.js'))
+        assert_in(b'foo: "1" + 2 + "3"', filter('js/simple.js'))
 
     def test_uses_coffee_script_options(self):
         settings.COFFEE_SCRIPT_OPTIONS = {'bare': True}
         self.mkfile('static/js/simple.coffee', 'a = foo: "1#{2}3"')
-        self.assertNotIn(b'(function() {', filter('js/simple.js'))
+        assert_not_in(b'(function() {', filter('js/simple.js'))
 
     def test_raises_syntax_error(self):
-        with assertRaisesRegex(
+        with assert_raises_regex(
                 self,
                 CoffeeScriptFilterError,
                 r'static/js/simple\.coffee:5'):

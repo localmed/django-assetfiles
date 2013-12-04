@@ -23,11 +23,11 @@ DATABASES = {
 INSTALLED_APPS = (
     'django_nose',
     'assetfiles',
-    'assetfiles.tests.project.app-1',
-    'assetfiles.tests.project.app-2',
+    'tests.project.app-1',
+    'tests.project.app-2',
 )
 
-ROOT_URLCONF = 'assetfiles.tests.urls'
+ROOT_URLCONF = 'tests.urls'
 
 STATIC_ROOT = path.join(PROJECT_ROOT, 'public')
 

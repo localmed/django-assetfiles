@@ -3,12 +3,16 @@ from __future__ import unicode_literals
 import os
 import re
 
+from nose.tools import *
+
 from assetfiles import settings
 from assetfiles.filters.sass import SassFilterError
-from assetfiles.tests.base import assertRaisesRegex, AssetfilesTestCase, filter
+
+from tests.base import assert_raises_regex, AssetfilesTestCase, filter
 
 
 class TestSassFilter(AssetfilesTestCase):
+
     def setUp(self):
         super(TestSassFilter, self).setUp()
         self.original_sass_options = settings.SASS_OPTIONS
@@ -21,20 +25,20 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/simple.scss',
             '$c: red; body { color: $c; }')
-        self.assertEqual(filter('css/simple.css'), b'body {\n  color: red; }')
+        assert_equal(filter('css/simple.css'), b'body {\n  color: red; }')
 
     def test_processes_app_scss_files(self):
         self.mkfile(
             'app-1/static/css/app.scss',
             '$c: yellow; body { color: $c; }')
-        self.assertEqual(filter('css/app.css'), b'body {\n  color: yellow; }')
+        assert_equal(filter('css/app.css'), b'body {\n  color: yellow; }')
 
     def test_processes_scss_files_with_deps(self):
         self.mkfile('static/css/folder/_dep.scss', '$c: black;')
         self.mkfile(
             'static/css/with_deps.scss',
             '@import "folder/dep"; body { color: $c; }')
-        self.assertEqual(
+        assert_equal(
             filter('css/with_deps.css'),
             b'body {\n  color: black; }')
 
@@ -43,7 +47,7 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/with_app_deps.scss',
             '@import "folder/dep"; body { color: $c; }')
-        self.assertEqual(
+        assert_equal(
             filter('css/with_app_deps.css'),
             b'body {\n  color: white; }')
 
@@ -51,7 +55,7 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/with_url.scss',
             'body { background: static-url("img/bg.jpg"); }')
-        self.assertEqual(
+        assert_equal(
             filter('css/with_url.css'),
             b'body {\n  background: url("/static/img/bg.jpg"); }')
 
@@ -64,7 +68,7 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/with_load_path_deps.scss',
             '@import "folder/dep"; body { color: $c; }')
-        self.assertEqual(
+        assert_equal(
             filter('css/with_load_path_deps.css'),
             b'body{color:#fff}')
 
@@ -72,7 +76,7 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/with_compass.scss',
             '@import "compass"; .btn { @include border-radius(5px); }')
-        self.assertIn(b'border-radius: 5px;', filter('css/with_compass.css'))
+        assert_in(b'border-radius: 5px;', filter('css/with_compass.css'))
 
     def test_integrates_with_compass_image_url(self):
         self.mkfile(
@@ -84,13 +88,13 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/cache_buster.scss',
             'body { background: image-url("img/bg.jpg", false, true); }')
-        self.assertEqual(
+        assert_equal(
             filter('css/image_url.css'),
             b'body {\n  background: url("/static/img/bg.jpg"); }')
-        self.assertEqual(
+        assert_equal(
             filter('css/only_path.css'),
             b'body {\n  background: url("/static/img/bg.jpg"); }')
-        self.assertEqual(
+        assert_equal(
             filter('css/cache_buster.css'),
             b'body {\n  background: url("/static/img/bg.jpg"); }')
 
@@ -101,10 +105,10 @@ class TestSassFilter(AssetfilesTestCase):
         self.mkfile(
             'static/css/only_path.scss',
             '@font-face { src: url(font-url("fonts/font.ttf", true)); }')
-        self.assertEqual(
+        assert_equal(
             filter('css/font_url.css'),
             b'@font-face {\n  src: url("/static/fonts/font.ttf"); }')
-        self.assertEqual(
+        assert_equal(
             filter('css/only_path.css'),
             b'@font-face {\n  src: url("/static/fonts/font.ttf"); }')
 
@@ -112,6 +116,6 @@ class TestSassFilter(AssetfilesTestCase):
         message = re.compile(
             r'.*?Syntax error.*?line 5.*?static/css/syntax_error\.scss',
             re.DOTALL)
-        with assertRaisesRegex(self, SassFilterError, message):
+        with assert_raises_regex(self, SassFilterError, message):
             self.mkfile('static/css/syntax_error.scss', '\n\n\n\nbody {')
             filter('css/syntax_error.css')
