@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.files.base import File, ContentFile
 from django.core.files.storage import Storage
-from django.utils.encoding import filepath_to_uri
+from django.utils.encoding import filepath_to_uri, force_text
 from django.utils import six
 
 
@@ -28,9 +28,12 @@ class TempFilesStorage(Storage):
 
         return file
 
-    def _save(self, name, content):
+    def save(self, name, content):
+        name = self.get_available_name(name)
         self.files[name] = content
-        return name
+
+        # Store filenames with forward slashes, even on Windows
+        return force_text(name.replace('\\', '/'))
 
     def delete(self, name):
         del self.files[name]

@@ -18,11 +18,6 @@ def filter(path):
     return filter.filter(asset_path).strip()
 
 
-def assertRaisesRegex(self, *args, **kwargs):
-    attr = 'assertRaisesRegex' if six.PY3 else 'assertRaisesRegexp'
-    return getattr(self, attr)(*args, **kwargs)
-
-
 def is_at_least_django_15():
     return django.VERSION[0] >= 1 and django.VERSION[1] >= 5
 
@@ -36,6 +31,7 @@ def is_glob2_available():
 
 
 class AssetfilesTestCase(TestCase):
+
     def setUp(self):
         # Clear the cached staticfiles_storage out, this is because when it first
         # gets accessed (by some other test), it evaluates settings.STATIC_ROOT,

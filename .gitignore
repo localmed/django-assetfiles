@@ -1,6 +1,6 @@
 # Project specific ignores
 .sass-cache
-assetfiles/tests/project
+tests/project
 
 # Python
 *.py[cod]
