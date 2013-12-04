@@ -5,7 +5,7 @@ from nose.tools import *
 from assetfiles import settings
 from assetfiles.filters.coffee import CoffeeScriptFilterError
 
-from tests.base import assert_raises_regex, AssetfilesTestCase, filter
+from tests.base import AssetfilesTestCase, filter
 
 
 class TestCoffeeScriptFilter(AssetfilesTestCase):
@@ -28,9 +28,6 @@ class TestCoffeeScriptFilter(AssetfilesTestCase):
         assert_not_in(b'(function() {', filter('js/simple.js'))
 
     def test_raises_syntax_error(self):
-        with assert_raises_regex(
-                self,
-                CoffeeScriptFilterError,
-                r'static/js/simple\.coffee:5'):
+        with assert_raises(CoffeeScriptFilterError):
             self.mkfile('static/js/simple.coffee', '\n\n\n\na = foo: "1#{2}3')
             filter('js/simple.js')
