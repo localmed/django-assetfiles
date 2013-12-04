@@ -2,4 +2,4 @@ include README.md
 include LICENSE
 include assetfiles/scripts/sass_env.rb
 include assetfiles/scripts/sass_functions.rb
-recursive-include assetfiles/tests *.html
+recursive-include tests *.html
