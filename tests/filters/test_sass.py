@@ -8,7 +8,7 @@ from nose.tools import *
 from assetfiles import settings
 from assetfiles.filters.sass import SassFilterError
 
-from tests.base import assert_raises_regex, AssetfilesTestCase, filter
+from tests.base import AssetfilesTestCase, filter
 
 
 class TestSassFilter(AssetfilesTestCase):
@@ -113,9 +113,6 @@ class TestSassFilter(AssetfilesTestCase):
             b'@font-face {\n  src: url("/static/fonts/font.ttf"); }')
 
     def test_raises_syntax_error(self):
-        message = re.compile(
-            r'.*?Syntax error.*?line 5.*?static/css/syntax_error\.scss',
-            re.DOTALL)
-        with assert_raises_regex(self, SassFilterError, message):
+        with assert_raises(SassFilterError):
             self.mkfile('static/css/syntax_error.scss', '\n\n\n\nbody {')
             filter('css/syntax_error.css')
