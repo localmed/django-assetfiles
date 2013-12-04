@@ -27,6 +27,6 @@ class TestCoffeeScriptFilter(AssetfilesTestCase):
         with assertRaisesRegex(
                 self,
                 CoffeeScriptFilterError,
-                r'.*?SyntaxError.*?static/js/simple\.coffee.*?line 5'):
+                r'static/js/simple\.coffee:5'):
             self.mkfile('static/js/simple.coffee', '\n\n\n\na = foo: "1#{2}3')
             filter('js/simple.js')

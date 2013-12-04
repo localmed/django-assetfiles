@@ -6,6 +6,7 @@ from assetfiles.storage import TempFilesStorage
 
 
 class TestTempFilesStorage(TestCase):
+
     def test_stores_in_memory(self):
         storage = TempFilesStorage()
         storage.save('path/to/file.txt', 'Hello World!')
@@ -15,7 +16,7 @@ class TestTempFilesStorage(TestCase):
         storage = TempFilesStorage()
         storage.save('path/to/file.txt', 'Hello World!')
         file = storage.open('path/to/file.txt')
-        self.assertEqual(u'Hello World!', u''.join(file.chunks()))
+        self.assertEqual('Hello World!', ''.join(file.chunks()))
 
     def test_deletes_storage(self):
         storage = TempFilesStorage()
